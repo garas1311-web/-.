@@ -1,75 +1,94 @@
-body { background: #0a0a0c; color: #e0e0e0; font-family: sans-serif; display: flex; justify-content: center; padding: 10px; margin: 0; }
-#game-container { width: 100%; max-width: 440px; background: #12121a; padding: 15px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.9); border: 1px solid #222; overflow: hidden;}
-h1, h3 { text-align: center; color: #ffd700; margin: 8px 0; text-transform: uppercase; font-size: 1.1em; }
+body { background: #08080a; color: #e0e0e0; font-family: 'Verdana', sans-serif; display: flex; justify-content: center; padding: 10px; margin: 0; }
+#game-container { width: 100%; max-width: 440px; background: #111118; padding: 15px; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.8); border: 1px solid #222; overflow: hidden;}
+h1, h3 { text-align: center; color: #ffd700; margin: 10px 0; text-transform: uppercase; letter-spacing: 1px; font-size: 1.2em; }
 
-/* Аватар */
-#progression-avatar { width: 60px; height: 60px; background: #1a1a24; border-radius: 12px; display: flex; justify-content: center; align-items: center; border: 2px solid #333; }
+/* Dashboard Профиля */
+#dashboard-profile { background: #161620; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #2a2a3a;}
+.profile-main { display: flex; align-items: center; gap: 15px; margin-bottom: 10px;}
+#progression-avatar { width: 60px; height: 60px; background: #0a0a14; border-radius: 50%; display: flex; justify-content: center; align-items: center; border: 2px solid #333; }
 #avatar-svg { width: 45px; height: 45px; transition: transform 0.5s; }
+.talent-points-label { color: #f1c40f; font-weight: bold; }
 
-#profile-panel { display: flex; align-items: center; gap: 15px; background: #161620; padding: 12px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #2a2a3a;}
-.stats-core { flex-grow: 1; }
-.stats-header { display: flex; justify-content: space-between; font-size: 0.9em; margin-bottom: 8px; }
-.progress-bar { width: 100%; height: 8px; background: #000; border-radius: 4px; overflow: hidden; }
-#exp-fill { height: 100%; background: #00b09b; width: 0%; transition: 0.3s; }
+.progress-bar { width: 100%; height: 10px; background: #1a1a24; border-radius: 5px; overflow: hidden; border: 1px solid #000; }
+#exp-fill { height: 100%; background: linear-gradient(90deg, #00b09b, #96c93d); width: 0%; transition: 0.3s; }
 
-/* Арена */
-#battle-arena { display: flex; justify-content: space-between; align-items: flex-end; height: 140px; padding: 10px; border-radius: 12px; margin-bottom: 12px; position: relative; border: 1px solid #333; overflow: hidden;}
+/* АРЕНА (ДЕТАЛИЗИРОВАННЫЕ КЛАССЫ) */
+#battle-arena { display: flex; justify-content: space-between; align-items: flex-end; height: 160px; padding: 10px; border-radius: 12px; margin-bottom: 12px; position: relative; border: 1px solid #333; overflow: hidden;}
 .loc-Лес { background: linear-gradient(to bottom, #142a1d, #09120d); border-bottom: 4px solid #27ae60; }
 .loc-Пещеры { background: linear-gradient(to bottom, #1b2631, #0d1217); border-bottom: 4px solid #7f8c8d; }
 .loc-Замок { background: linear-gradient(to bottom, #211330, #0a060f); border-bottom: 4px solid #8e2de2; }
 
-#squad-stage { display: flex; flex-direction: column; gap: 2px; }
-.unit { position: relative; width: 40px; height: 40px; transition: 0.2s; }
+#squad-stage { display: flex; flex-direction: column; gap: 4px; }
+.unit { width: 45px; height: 50px; position: relative; transition: transform 0.2s; }
 .pixel-unit { width: 100%; height: 100%; }
-.staff-orb { animation: orbGlow 1s infinite alternate; }
-@keyframes orbGlow { from { opacity: 0.5; } to { opacity: 1; filter: brightness(2); } }
 
-/* Анимации атак */
+/* Уникальные Анимации классов */
+.swordsman { animation: heroIdle 2s infinite ease-in-out; }
+.archer { animation: heroIdle 2.2s infinite ease-in-out; }
+.mage { animation: heroIdle 2.5s infinite ease-in-out; }
+@keyframes heroIdle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+
+/* Спецэффекты атак */
+.staff-orb { animation: orbGlow 1.5s infinite alternate; }
+@keyframes orbGlow { from { opacity: 0.5; } to { opacity: 1; filter: brightness(2) blur(1px); } }
+
+/* Анимации Боя */
 .anim-slash { animation: slashHero 0.3s; }
-@keyframes slashHero { 50% { transform: translateX(30px) rotate(10deg); } }
+@keyframes slashHero { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(30px) rotate(15deg); } }
 
-.arrow, .spell { position: absolute; top: 10px; left: 30px; opacity: 0; font-size: 20px; }
-.anim-shoot .arrow { animation: projectile 0.4s forwards; }
-.anim-cast .spell { animation: projectile 0.4s forwards; font-size: 25px; }
-@keyframes projectile { 0% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(180px); } }
+.arrow-projectile, .spell-projectile { position: absolute; top: 10px; left: 30px; opacity: 0; pointer-events: none; font-size: 20px; }
+.anim-shoot .arrow-projectile { animation: projectileFly 0.4s linear forwards; }
+.anim-cast .spell-projectile { animation: projectileFly 0.5s ease-out forwards; font-size: 30px; }
+@keyframes projectileFly { 0% { opacity: 1; transform: translateX(0); } 100% { opacity: 0; transform: translateX(180px); } }
 
 /* Враг */
-#enemy-stage { position: relative; width: 70px; height: 100px; display: flex; justify-content: center; align-items: flex-end; }
-#enemy-sprite { font-size: 60px; transition: 0.2s; }
-.anim-hit { animation: hit 0.3s; }
-@keyframes hit { 50% { transform: scale(0.8) translateX(10px); filter: brightness(2) sepia(1); } }
+#enemy-stage { position: relative; width: 70px; height: 120px; display: flex; justify-content: center; align-items: flex-end; }
+#enemy-sprite { font-size: 70px; line-height: 1; transition: opacity 0.3s; }
+.anim-hit { animation: hitShake 0.3s; }
+@keyframes hitShake { 0%, 100% { transform: translateX(0) scale(1); filter: brightness(1); } 50% { transform: translateX(-5px) scale(0.9); filter: brightness(3) sepia(1) hue-rotate(-50deg); } }
 .shake-screen { animation: screenShake 0.2s; }
 @keyframes screenShake { 25% { transform: translate(-3px, 3px); } 75% { transform: translate(3px, -3px); } }
 
-/* Плавающие числа */
-.floating-text { position: absolute; top: -10px; font-weight: bold; opacity: 0; z-index: 10; }
-.dmg-red { color: #ff4b2b; animation: float 0.7s forwards; }
-@keyframes float { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-40px); } }
+/* Урон */
+.floating-text { position: absolute; top: -10px; font-weight: bold; font-size: 1.2em; opacity: 0; pointer-events: none; z-index: 10; text-shadow: 1px 1px 2px #000; }
+.dmg-red { color: #ff4b2b; animation: floatUp 0.8s ease-out forwards; }
+@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-30px); } }
 
-/* Интерфейс */
-.icon-stats { background: #161620; padding: 10px; border-radius: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.85em; margin-bottom: 12px; }
-.map-grid, .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
-button { border: none; border-radius: 8px; color: white; font-weight: bold; padding: 12px; cursor: pointer; font-size: 0.85em; }
-.danger-btn { background: #c0392b; } .magic-btn { background: #2980b9; } .heal-btn { background: #27ae60; } .event-btn { background: #d35400; }
+/* Статы и Кнопки */
+.icon-stats { color: #fff; font-size: 0.85em; background: #161620; padding: 10px; border-radius: 8px; text-align: center; margin-bottom: 12px;}
+.hp-text { color: #ff4b2b; } .mp-text { color: #6dd5ed; }
+.stats-grid, .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-#shop-panel { background: #161620; padding: 12px; border-radius: 12px; border: 1px solid #2a2a3a; margin-bottom: 12px; }
+button { border: none; border-radius: 8px; color: white; font-weight: bold; padding: 12px; cursor: pointer; transition: 0.1s; font-size: 0.9em; }
+button:active { transform: scale(0.95); }
+button:disabled { background: #222 !important; color: #555; cursor: not-allowed;}
+.danger-btn { background: #c0392b; } .magic-btn { background: #2980b9; } .heal-btn { background: #27ae60; } .event-btn { background: #d35400; } .talent-btn { background: #f1c40f; color: #000; }
+
+/* Кузница */
+#shop-panel { background: #161620; padding: 12px; border-radius: 10px; border: 1px solid #2a2a3a; margin-top: 12px; }
 .shop-tabs { display: flex; gap: 5px; margin-bottom: 10px; }
-.tab-btn { flex: 1; background: #222; color: #777; padding: 8px; border-radius: 6px; }
-.tab-btn.active { background: #ffd700; color: #000; }
+.tab-btn { flex: 1; background: #222; color: #888; padding: 8px; font-size: 0.8em; border-radius: 5px; }
+.tab-btn.active { background: #f1c40f; color: #000; }
 .tab-content { display: none; } .tab-content.active { display: block; }
-.shop-item { display: flex; justify-content: space-between; align-items: center; background: #1a1a24; padding: 8px; margin: 5px 0; border-radius: 6px; font-size: 0.8em; }
-.owned { border-left: 4px solid #27ae60; opacity: 0.7; }
+.shop-item { display: flex; justify-content: space-between; align-items: center; background: #1a1a24; padding: 8px; margin: 5px 0; border-radius: 6px; font-size: 0.85em; }
+.owned { border-left: 4px solid #27ae60; background: #102018; opacity: 0.8; }
+
+#log-panel { margin-top: 15px; background: #000; height: 100px; overflow-y: auto; padding: 10px; border-radius: 8px; font-size: 0.8em; color: #bbb; border: 1px solid #222; }
+
+/* ОВЕРЛЕИ (ВСПЛЫВАЮЩИЕ ОКНА) */
+.overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 100; opacity: 1; transition: 0.3s;}
+.overlay.hidden { display: none !important; opacity: 0;}
+.overlay-card { background: #1c1c28; padding: 20px; border-radius: 15px; border: 2px solid #ffd700; width: 85%; max-width: 400px; text-align: center; position: relative;}
+.close-btn { position: absolute; top: 10px; right: 10px; background: none; border: none; color: white; font-size: 1.2em; cursor: pointer; padding: 0;}
+
+/* Таланты */
+.talent-tree { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 20px; }
+.talent-node { padding: 10px 5px; background: #333; border-radius: 5px; font-size: 0.7em; margin-bottom: 5px;}
+.talent-node.locked { color: #888; border: 1px solid #222; }
+.talent-node.purchased { background: #ffd700; color: #000; border: 2px solid #fff; }
 
 /* Артефакты */
-.artifact-grid { display: flex; gap: 10px; justify-content: center; padding: 10px; background: #1a1a24; border-radius: 10px; }
-.art-slot { width: 45px; height: 45px; background: #000; border: 2px dashed #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5em; }
+.artifact-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr; gap: 6px; padding: 10px; background: #1a1a24; border-radius: 10px; margin-bottom: 10px;}
+.art-slot { width: 40px; height: 40px; background: #000; border: 2px dashed #444; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.3em; cursor: pointer;}
 .art-full { border: 2px solid #ffd700; background: radial-gradient(circle, #2c3e50, #000); }
-
-#log-panel { background: #000; height: 80px; overflow-y: auto; padding: 10px; border-radius: 8px; font-size: 0.75em; color: #888; border: 1px solid #222; }
-
-/* Оверлей */
-#event-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; justify-content: center; align-items: center; z-index: 100; }
-.event-card { background: #1c1c28; padding: 20px; border-radius: 15px; border: 2px solid #ffd700; width: 80%; text-align: center; }
-.event-choices { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-.choice-btn { background: #34495e; padding: 10px; border-radius: 5px; }
-.hidden { display: none !important; }
+.art-selected { border: 3px solid #ff4b2b; box-shadow: 0 0 10px #ff4b2b; }
