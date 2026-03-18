@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Immortal Squad: Ultimate Full RPG</title>
+    <title>Immortal Squad: Sprite Edition</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,7 +16,8 @@
         <section id="dashboard-profile">
             <div class="profile-main">
                 <div id="progression-avatar">
-                    </div>
+                    <div class="knight-sprite-preview"></div>
+                </div>
                 <div class="stats-header">
                     <span>Ур. <span id="level">1</span></span>
                     <span class="stat-gold">💰 <span id="gold">0</span></span>
@@ -31,33 +32,25 @@
 
         <section id="battle-arena" class="loc-Лес">
             <div id="squad-stage">
-                <div class="unit" id="unit-knight">
-                    <svg viewBox="0 0 50 80" class="pixel-unit detailed-unit">
-                        <g class="torso"><rect x="15" y="30" width="20" height="30" fill="#7f8c8d" rx="2"/></g>
-                        <g class="head"><rect x="17" y="15" width="16" height="18" fill="#95a5a6" rx="5"/></g>
-                        <g class="weapon" transform="translate(42, 10)">
-                            <rect class="sword-blade" x="0" y="10" width="4" height="40" fill="#bdc3c7"/>
-                            <rect class="sword-guard" x="-3" y="10" width="10" height="3" fill="#e74c3c"/>
-                        </g>
-                    </svg>
+                <div class="unit knight-unit" id="unit-knight">
+                    <div class="sprite-layer knight-idle"></div>
                 </div>
+                
                 <div class="unit" id="unit-archer">
-                    <svg viewBox="0 0 50 80" class="pixel-unit detailed-unit">
-                        <g class="torso"><rect x="15" y="30" width="20" height="30" fill="#27ae60" rx="2"/></g>
-                        <g class="head"><path d="M17 15 L33 15 L25 5 Z" fill="#2ecc71"/></g>
-                        <g class="weapon" transform="translate(35, 30)">
-                            <path class="bow-base" d="M0 0 Q 15 15 0 30" stroke="#f1c40f" fill="none" stroke-width="2"/>
-                            <rect class="arrow-visual" x="0" y="13" width="15" height="4" fill="#6a543f"/>
-                        </g>
+                    <svg viewBox="0 0 50 80" class="pixel-unit">
+                        <rect x="15" y="30" width="20" height="30" fill="#27ae60" rx="2"/>
+                        <path d="M17 15 L33 15 L25 5 Z" fill="#2ecc71"/>
+                        <g transform="translate(35, 30)"><path d="M0 0 Q 15 15 0 30" stroke="#f1c40f" fill="none" stroke-width="2"/></g>
                     </svg>
                     <div class="arrow-projectile">➡️</div>
                 </div>
+
                 <div class="unit" id="unit-mage">
-                    <svg viewBox="0 0 50 80" class="pixel-unit detailed-unit">
-                        <g class="torso"><rect x="15" y="30" width="20" height="30" fill="#8e44ad" rx="2"/></g>
-                        <g class="head"><rect x="17" y="10" width="16" height="25" fill="#9b59b6" rx="8"/></g>
-                        <g class="weapon" transform="translate(38, 20)">
-                            <rect class="staff-base" x="0" y="0" width="3" height="45" fill="#34495e"/>
+                    <svg viewBox="0 0 50 80" class="pixel-unit">
+                        <rect x="15" y="30" width="20" height="30" fill="#8e44ad" rx="2"/>
+                        <circle cx="25" cy="20" r="10" fill="#9b59b6"/>
+                        <g transform="translate(38, 20)">
+                            <rect x="0" y="0" width="3" height="45" fill="#34495e"/>
                             <circle class="staff-orb" cx="1.5" cy="0" r="5" fill="#00d2ff"/>
                         </g>
                     </svg>
@@ -92,8 +85,8 @@
                 <button id="btn-combo" onclick="squadAttack('physical')" class="danger-btn">⚔️ Комбо-атака</button>
                 <button id="btn-magic" onclick="squadAttack('magic')" class="magic-btn">🔥 Маг. залп</button>
                 <button id="btn-rest" onclick="rest()" class="heal-btn">🛌 Привал</button>
-                <button id="btn-talents" onclick="showTalentTree()" class="talent-btn">🌟 Древо Навыков</button>
-                <button id="btn-inventory" onclick="showFullInventory()" class="event-btn">💎 Инвентарь</button>
+                <button id="btn-talents" onclick="showTalentTree()" class="talent-btn">🌟 Навыки</button>
+                <button id="btn-inventory" onclick="showFullInventory()" class="event-btn">🎒 Инвентарь</button>
             </div>
         </section>
 
@@ -103,69 +96,42 @@
                 <button onclick="switchTab('weapons')" class="tab-btn active">Оружие</button>
                 <button onclick="switchTab('armor')" class="tab-btn">Броня</button>
             </div>
-            
             <div id="tab-weapons" class="shop-list tab-content active">
-                <div class="shop-item" id="item-sword"><span class="item-name">⚔️ Набор клинков (+20 СИЛ)</span><button onclick="buyItem('sword', 150)">150г</button></div>
-                <div class="shop-item" id="item-staff"><span class="item-name">🔮 Сферы силы (+25 МАГ)</span><button onclick="buyItem('staff', 200)">200г</button></div>
+                <div class="shop-item" id="item-sword"><span>⚔️ Клинки (+20 СИЛ)</span><button onclick="buyItem('sword', 150)">150г</button></div>
+                <div class="shop-item" id="item-staff"><span>🔮 Сферы (+25 МАГ)</span><button onclick="buyItem('staff', 200)">200г</button></div>
             </div>
-            
             <div id="tab-armor" class="shop-list tab-content">
-                <div class="shop-item" id="item-armor"><span class="item-name">🛡️ Кольчуги (+80 HP)</span><button onclick="buyItem('armor', 300)">300г</button></div>
-                <div class="shop-item" id="item-plate"><span class="item-name">🛡️ Латы Света (+200 HP)</span><button onclick="buyItem('plate', 1000)">1000г</button></div>
+                <div class="shop-item" id="item-armor"><span>🛡️ Кольчуги (+80 HP)</span><button onclick="buyItem('armor', 300)">300г</button></div>
             </div>
         </section>
 
-        <div id="log-panel"><div id="game-log">Проект Ultimate запущен...</div></div>
+        <div id="log-panel"><div id="game-log">Загрузка спрайтов...</div></div>
     </div>
 
     <div id="event-overlay" class="overlay hidden">
-        <div class="overlay-card event-card">
-            <h4 id="event-title">Странное событие</h4>
-            <p id="event-text">...</p>
-            <div class="choice-group">
-                <button id="choice-1" class="choice-btn">Выбор 1</button>
-                <button id="choice-2" class="choice-btn">Выбор 2</button>
-            </div>
-        </div>
+        <div class="overlay-card"><h4 id="event-title"></h4><p id="event-text"></p><div class="choice-group"><button id="choice-1"></button><button id="choice-2"></button></div></div>
     </div>
 
     <div id="talent-overlay" class="overlay hidden">
-        <div class="overlay-card talent-card">
+        <div class="overlay-card">
             <button class="close-btn" onclick="closeOverlays()">✖️</button>
-            <h4>🌟 Древо Талантов (Очки: <span id="talent-points-display">0</span>)</h4>
+            <h4>🌟 Навыки (Очки: <span id="talent-points-display">0</span>)</h4>
             <div class="talent-tree">
-                <div class="talent-branch force-branch">
-                    <h5>💪 Сила</h5>
-                    <button class="talent-node locked" id="talent-force-1" onclick="buyTalent('force', 1)">Ур 1 (+5 Стр)</button>
-                    <button class="talent-node locked" id="talent-force-2" onclick="buyTalent('force', 2)">Ур 2 (+10 Стр)</button>
-                </div>
-                <div class="talent-branch arcane-branch">
-                    <h5>🔮 Магия</h5>
-                    <button class="talent-node locked" id="talent-arcane-1" onclick="buyTalent('arcane', 1)">Ур 1 (+5 Маг)</button>
-                    <button class="talent-node locked" id="talent-arcane-2" onclick="buyTalent('arcane', 2)">Ур 2 (+10 Маг)</button>
-                </div>
-                <div class="talent-branch endurance-branch">
-                    <h5>🛡️ Живучесть</h5>
-                    <button class="talent-node locked" id="talent-endurance-1" onclick="buyTalent('endurance', 1)">Ур 1 (+5 Выно)</button>
-                    <button class="talent-node locked" id="talent-endurance-2" onclick="buyTalent('endurance', 2)">Ур 2 (+10 Выно)</button>
-                </div>
+                <div class="talent-branch"><h5>💪 Сила</h5><button class="talent-node" id="talent-force-1" onclick="buyTalent('force', 1)">Ур 1</button></div>
+                <div class="talent-branch"><h5>🔮 Маг</h5><button class="talent-node" id="talent-arcane-1" onclick="buyTalent('arcane', 1)">Ур 1</button></div>
+                <div class="talent-branch"><h5>🛡️ ХП</h5><button class="talent-node" id="talent-endurance-1" onclick="buyTalent('endurance', 1)">Ур 1</button></div>
             </div>
         </div>
     </div>
 
     <div id="inventory-overlay" class="overlay hidden">
-        <div class="overlay-card inventory-card">
+        <div class="overlay-card">
             <button class="close-btn" onclick="closeOverlays()">✖️</button>
-            <h4>🎒 Инвентарь Артефактов</h4>
-            <div class="inventory-container">
-                <div id="artifact-slots" class="artifact-grid">
-                    <div class="art-slot"></div><div class="art-slot"></div><div class="art-slot"></div><div class="art-slot"></div><div class="art-slot"></div>
-                    <div class="art-slot"></div><div class="art-slot"></div><div class="art-slot"></div><div class="art-slot"></div><div class="art-slot"></div>
-                </div>
-                <div class="combine-section">
-                    <button onclick="combineArtifacts()" class="danger-btn">Синтезировать Артефакты (2 ячейки)</button>
-                </div>
+            <h4>🎒 Инвентарь</h4>
+            <div id="artifact-slots" class="artifact-grid">
+                <div class="art-slot"></div><div class="art-slot"></div><div class="art-slot"></div><div class="art-slot"></div><div class="art-slot"></div>
             </div>
+            <button onclick="combineArtifacts()" class="danger-btn" style="margin-top:10px">Синтез (выберите 2)</button>
         </div>
     </div>
 
