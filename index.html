@@ -3,24 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Immortal Path: Action Update</title>
+    <title>Immortal Squad: Squad Update</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
         <header>
-            <h1><span class="icon-rank">🎖️</span> <span id="rank-name">Новичок</span></h1>
+            <h1><span id="rank-icon">🌑</span> <span id="rank-name">Новичок</span></h1>
             <div id="location-name">📍 Деревня</div>
         </header>
 
         <section id="profile-panel">
             <div class="avatar-section">
-                <div id="avatar-preview">
-                    <img id="player-avatar" src="" alt="" style="display: none;">
-                    <span id="avatar-placeholder">👤</span>
+                <div id="progression-avatar">
+                    <svg viewBox="0 0 50 50" id="avatar-svg">
+                        <circle cx="25" cy="25" r="20" fill="#2c3e50" id="avatar-bg"/>
+                        <path d="M25 15 L30 25 L20 25 Z" fill="#95a5a6" id="avatar-core"/>
+                    </svg>
                 </div>
-                <label for="avatar-upload" class="avatar-btn">📷 Фото</label>
-                <input type="file" id="avatar-upload" accept="image/*" onchange="uploadPhoto(event)">
             </div>
             
             <div class="stats-core">
@@ -36,22 +36,37 @@
         </section>
 
         <section id="battle-arena" class="loc-Лес">
-            <div id="hero-stage">
-                <svg class="pixel-knight" viewBox="0 0 50 80" xmlns="http://www.w3.org/2000/svg">
-                    <rect class="knight-body" x="15" y="30" width="20" height="30" fill="#7f8c8d" rx="2"/>
-                    <path class="plate-shoulders" d="M 12 30 Q 25 23 38 30 L 39 36 Q 25 32 11 36 Z" fill="#f39c12"/>
-                    <rect x="17" y="15" width="16" height="18" fill="#95a5a6" rx="5"/>
-                    <rect x="20" y="22" width="10" height="3" fill="#2c3e50"/>
-                    <rect x="17" y="60" width="7" height="15" fill="#7f8c8d"/>
-                    <rect x="26" y="60" width="7" height="15" fill="#7f8c8d"/>
-                    <circle cx="12" cy="35" r="5" fill="#95a5a6"/>
-                    <circle cx="38" cy="35" r="5" fill="#95a5a6"/>
-                    <g class="knight-sword" transform="translate(42, 10) rotate(15)">
-                        <rect x="0" y="10" width="4" height="40" fill="#bdc3c7"/>
-                        <rect x="-3" y="10" width="10" height="3" fill="#e74c3c"/>
-                    </g>
-                </svg>
-                <div id="magic-projectile">✨</div>
+            <div id="squad-stage">
+                <div class="unit swordsman" id="unit-knight">
+                    <svg class="pixel-unit" viewBox="0 0 50 80">
+                        <rect class="body" x="15" y="30" width="20" height="30" fill="#7f8c8d" rx="2"/>
+                        <rect x="17" y="15" width="16" height="18" fill="#95a5a6" rx="5"/>
+                        <g class="weapon-sword" transform="translate(42, 10)">
+                            <rect x="0" y="10" width="4" height="35" fill="#bdc3c7"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="unit archer" id="unit-archer">
+                    <svg class="pixel-unit" viewBox="0 0 50 80">
+                        <rect class="body" x="15" y="30" width="20" height="30" fill="#27ae60" rx="2"/>
+                        <path d="M17 15 L33 15 L25 5 Z" fill="#2ecc71"/>
+                        <g class="weapon-bow" transform="translate(35, 30)">
+                            <path d="M0 0 Q 15 15 0 30" stroke="#f1c40f" fill="none" stroke-width="2"/>
+                        </g>
+                    </svg>
+                    <div class="arrow">➡️</div>
+                </div>
+                <div class="unit mage" id="unit-mage">
+                    <svg class="pixel-unit" viewBox="0 0 50 80">
+                        <rect class="body" x="15" y="30" width="20" height="30" fill="#8e44ad" rx="2"/>
+                        <rect x="17" y="10" width="16" height="25" fill="#9b59b6" rx="8"/>
+                        <g class="weapon-staff" transform="translate(38, 20)">
+                            <rect x="0" y="0" width="3" height="45" fill="#34495e"/>
+                            <circle cx="1.5" cy="0" r="5" fill="#00d2ff"/>
+                        </g>
+                    </svg>
+                    <div class="spell">✨</div>
+                </div>
                 <div id="hero-damage" class="floating-text"></div>
             </div>
 
@@ -70,12 +85,6 @@
             </div>
         </section>
 
-        <section id="quest-panel">
-            <h3>📜 Текущий квест</h3>
-            <div id="quest-info">Заданий пока нет.</div>
-            <div class="progress-bar quest"><div id="quest-fill"></div></div>
-        </section>
-
         <nav id="map-panel">
             <div class="map-grid">
                 <button onclick="changeLoc('Лес')">🌲 Лес</button>
@@ -86,40 +95,32 @@
 
         <section id="action-panel">
             <div class="actions-grid">
-                <button id="btn-sword" onclick="hunt('sword')" class="danger-btn">⚔️ Рубить</button>
-                <button id="btn-magic" onclick="hunt('magic')" class="magic-btn">🔥 Сжечь</button>
-                <button onclick="rest()" class="heal-btn">🛌 Отдых</button>
-                <button onclick="lifeEvent()" class="event-btn">🎲 Приключения</button>
+                <button onclick="squadAttack('physical')" class="danger-btn">⚔️ Общая атака</button>
+                <button onclick="squadAttack('magic')" class="magic-btn">🔮 Маг. залп</button>
+                <button onclick="rest()" class="heal-btn">🛌 Привал</button>
+                <button onclick="lifeEvent()" class="event-btn">🎲 Событие</button>
             </div>
         </section>
 
         <section id="shop-panel">
-            <h3>🛒 Каталог</h3>
+            <h3>🛒 Снаряжение отряда</h3>
             <div class="shop-tabs">
                 <button onclick="switchTab('weapons')" class="tab-btn active">Оружие</button>
                 <button onclick="switchTab('armor')" class="tab-btn">Броня</button>
-                <button onclick="switchTab('memes')" class="tab-btn">Мемы</button>
             </div>
             
             <div id="tab-weapons" class="shop-list tab-content active">
-                <div class="shop-item" id="item-sword"><span class="item-name">🗡️ Меч (+15 СИЛ)</span><button onclick="buyItem('sword', 100)">100г</button></div>
-                <div class="shop-item" id="item-staff"><span class="item-name">🪄 Посох (+15 МАГ)</span><button onclick="buyItem('staff', 150)">150г</button></div>
+                <div class="shop-item" id="item-sword"><span class="item-name">⚔️ Набор клинков (+20 СИЛ)</span><button onclick="buyItem('sword', 150)">150г</button></div>
+                <div class="shop-item" id="item-staff"><span class="item-name">🔮 Сферы силы (+25 МАГ)</span><button onclick="buyItem('staff', 200)">200г</button></div>
             </div>
             
             <div id="tab-armor" class="shop-list tab-content">
-                <div class="shop-item" id="item-armor"><span class="item-name">🛡️ Кольчуга (+50 HP)</span><button onclick="buyItem('armor', 250)">250г</button></div>
-                <div class="shop-item" id="item-plate"><span class="item-name">🛡️ Латы (+150 HP)</span><button onclick="buyItem('plate', 800)">800г</button></div>
-            </div>
-
-            <div id="tab-memes" class="shop-list tab-content">
-                <div class="shop-item" id="item-meme1"><span class="item-name">🤣 Кот с лампами</span><button onclick="buyItem('meme1', 300)">300г</button></div>
-                <div class="shop-item" id="item-meme2"><span class="item-name">🔥 Неверный парень</span><button onclick="buyItem('meme2', 500)">500г</button></div>
+                <div class="shop-item" id="item-armor"><span class="item-name">🛡️ Кольчуги (+80 HP)</span><button onclick="buyItem('armor', 300)">300г</button></div>
+                <div class="shop-item" id="item-plate"><span class="item-name">🌕 Латы Света (+200 HP)</span><button onclick="buyItem('plate', 1000)">1000г</button></div>
             </div>
         </section>
 
-        <div id="log-panel">
-            <div id="game-log">Проект загружен. Боевая арена готова!</div>
-        </div>
+        <div id="log-panel"><div id="game-log">Отряд готов к походу!</div></div>
     </div>
     <script src="script.js"></script>
 </body>
