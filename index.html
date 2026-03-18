@@ -39,3 +39,15 @@
     <script src="script.js"></script>
 </body>
 </html>
+<p>Здоровье: <span id="hp">100</span> / <span id="max-hp">100</span></p>
+<div class="progress-bar health"><div id="hp-fill"></div></div>
+
+<button onclick="rest()" style="background: #27ae60;">Отдохнуть (+20 HP) — 5 золота</button>
+
+<section id="shop-panel">
+    <h2>Лавка кузнеца</h2>
+    <div class="shop-item">
+        <span>Старый меч (+5 к урону)</span>
+        <button id="buy-sword" onclick="buyItem('sword', 50)">Купить (50г)</button>
+    </div>
+</section>
