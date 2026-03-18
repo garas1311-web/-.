@@ -3,23 +3,24 @@ let player = {
     hp: 100, maxHp: 100, mp: 50, maxMp: 50,
     strength: 10, magic: 10, gold: 0,
     rank: "Новичок", location: "Лес",
-    inventory: { sword: false, staff: false, armor: false }
+    kills: 0,
+    inventory: { sword: false, staff: false, armor: false },
+    quest: { target: 5, current: 0, rewardGold: 100, rewardExp: 200, active: true }
 };
 
 const ranks = ["Новичок", "Подмастерье", "Мастер", "Магистр", "Мудрец", "Immortal"];
 const locations = {
-    "Лес": { minLvl: 1, danger: 15, loot: 10, exp: 25 },
-    "Пещеры": { minLvl: 5, danger: 35, loot: 30, exp: 60 },
-    "Замок": { minLvl: 10, danger: 60, loot: 80, exp: 150 }
+    "Лес": { minLvl: 1, danger: 15, loot: 12, exp: 30 },
+    "Пещеры": { minLvl: 5, danger: 35, loot: 35, exp: 70 },
+    "Замок": { minLvl: 10, danger: 65, loot: 90, exp: 160 }
 };
 
-function save() { localStorage.setItem('immortalSave', JSON.stringify(player)); }
+function save() { localStorage.setItem('immortalQuestRPG', JSON.stringify(player)); }
 function load() {
-    const data = localStorage.getItem('immortalSave');
+    const data = localStorage.getItem('immortalQuestRPG');
     if (data) { player = JSON.parse(data); updateUI(); }
 }
 
-// Регенерация каждые 2 сек
 setInterval(() => {
     if (player.hp < player.maxHp) player.hp = Math.min(player.hp + 2, player.maxHp);
     if (player.mp < player.maxMp) player.mp = Math.min(player.mp + 3, player.maxMp);
@@ -30,94 +31,133 @@ function updateUI() {
     document.getElementById('level').innerText = player.level;
     document.getElementById('exp').innerText = player.exp;
     document.getElementById('next-lvl-exp').innerText = player.nextLvlExp;
-    document.getElementById('hp').innerText = player.hp;
+    document.getElementById('hp').innerText = Math.floor(player.hp);
     document.getElementById('max-hp').innerText = player.maxHp;
-    document.getElementById('mp').innerText = player.mp;
+    document.getElementById('mp').innerText = Math.floor(player.mp);
     document.getElementById('max-mp').innerText = player.maxMp;
     document.getElementById('gold').innerText = player.gold;
     document.getElementById('stat-strength').innerText = player.strength;
     document.getElementById('stat-magic').innerText = player.magic;
     document.getElementById('rank-name').innerText = player.rank;
-    document.getElementById('location-name').innerText = "Локация: " + player.location;
+    document.getElementById('location-name').innerText = "📍 " + player.location;
 
     document.getElementById('exp-fill').style.width = (player.exp / player.nextLvlExp * 100) + "%";
     document.getElementById('hp-fill').style.width = (player.hp / player.maxHp * 100) + "%";
     document.getElementById('mp-fill').style.width = (player.mp / player.maxMp * 100) + "%";
 
-    checkOwned('sword', 'buy-sword');
-    checkOwned('staff', 'buy-staff');
-    checkOwned('armor', 'buy-armor');
+    updateQuestUI();
+    checkItems();
 }
 
-function checkOwned(id, btnId) {
-    if(player.inventory[id]) {
-        document.getElementById(btnId).innerText = "Есть";
-        document.getElementById(btnId).disabled = true;
+function updateQuestUI() {
+    const q = player.quest;
+    if (q.active) {
+        document.getElementById('quest-info').innerText = `Квест: Победить монстров (${q.current}/${q.target})`;
+        document.getElementById('quest-fill').style.width = (q.current / q.target * 100) + "%";
+    } else {
+        document.getElementById('quest-info').innerText = "Все квесты выполнены! Ждите новых заданий.";
+        document.getElementById('quest-fill').style.width = "0%";
     }
+}
+
+function checkItems() {
+    const inv = player.inventory;
+    if (inv.sword) markOwned('item-sword');
+    if (inv.staff) markOwned('item-staff');
+    if (inv.armor) markOwned('item-armor');
+}
+
+function markOwned(id) {
+    const el = document.getElementById(id);
+    el.classList.add('owned');
+    el.querySelector('button').innerText = "✅";
+    el.querySelector('button').disabled = true;
 }
 
 function changeLoc(name) {
     if (player.level >= locations[name].minLvl) {
         player.location = name;
-        addLog(`Вы отправились в ${name}.`);
+        addLog(`✈️ Вы перешли в локацию ${name}.`);
     } else {
-        addLog(`Нужен уровень ${locations[name].minLvl}!`);
+        addLog(`⚠️ Слишком опасно! Нужен уровень ${locations[name].minLvl}.`);
     }
     updateUI();
 }
 
 function hunt(type) {
     let loc = locations[player.location];
-    
-    if (type === 'magic') {
-        if (player.mp < 10) { addLog("Мана пуста!"); return; }
-        player.mp -= 10;
-    } else if (player.hp <= 20) {
-        addLog("Слишком мало здоровья!"); return;
-    }
+    if (type === 'magic' && player.mp < 15) { addLog("❌ Недостаточно маны!"); return; }
+    if (player.hp <= 25) { addLog("🩹 Вы слишком ранены! Отдохните."); return; }
 
-    let event = Math.random();
-    if (event > 0.9) {
-        player.gold += 50; addLog("🍀 Нашли тайник! +50 золота.");
-    } else {
+    if (type === 'magic') player.mp -= 15;
+
+    let isWin = Math.random() > 0.15; // 85% шанс на успех
+    if (isWin) {
         let dmg = type === 'magic' ? 5 : Math.floor(Math.random() * loc.danger);
-        let bonus = player.inventory.sword ? 15 : 0;
-        let goldFound = Math.floor(Math.random() * loc.loot) + bonus;
+        let bonus = player.inventory.sword ? 20 : 0;
+        let goldLoot = Math.floor(Math.random() * loc.loot) + bonus;
         
         player.hp -= dmg;
-        player.gold += goldFound;
-        addLog(`Бой в ${player.location}: -${dmg} HP, +${goldFound}г.`);
+        player.gold += goldLoot;
+        player.kills++;
+        
+        if (player.quest.active) {
+            player.quest.current++;
+            if (player.quest.current >= player.quest.target) finishQuest();
+        }
+
+        addLog(`⚔️ Победа в ${player.location}! -${dmg} HP, +${goldLoot}💰`);
+        gainExp(loc.exp);
+    } else {
+        player.hp -= 30;
+        addLog("🛡️ Вы отступили! Монстр оказался слишком сильным.");
     }
 
     if (player.hp <= 0) {
-        player.hp = 20; player.gold = Math.floor(player.gold / 2);
-        addLog("💀 Поражение! Потеряна часть золота.");
+        player.hp = 25; player.gold = Math.floor(player.gold * 0.7);
+        addLog("💀 Поражение! Потеряно 30% золота.");
     }
-    gainExp(loc.exp);
+    updateUI();
+}
+
+function finishQuest() {
+    player.gold += player.quest.rewardGold;
+    gainExp(player.quest.rewardExp);
+    addLog(`🎁 КВЕСТ ВЫПОЛНЕН! +${player.quest.rewardGold}💰 и +${player.quest.rewardExp} опыта.`);
+    
+    // Генерируем новый квест
+    player.quest.target += 5;
+    player.quest.current = 0;
+    player.quest.rewardGold += 50;
+    player.quest.rewardExp += 100;
 }
 
 function buyItem(item, cost) {
     if (player.gold >= cost) {
         player.gold -= cost;
         player.inventory[item] = true;
-        if (item === 'sword') player.strength += 10;
-        if (item === 'staff') player.magic += 10;
+        if (item === 'sword') player.strength += 15;
+        if (item === 'staff') player.magic += 15;
         if (item === 'armor') { player.maxHp += 50; player.hp += 50; }
-        addLog(`Куплено: ${item}!`);
+        addLog(`🔨 Куплено: ${item}!`);
         save(); updateUI();
+    } else {
+        addLog("💰 Мало золота!");
     }
 }
 
 function train() {
+    if (player.hp < 20) { addLog("Сначала отдохните!"); return; }
     player.strength += 1; player.magic += 1;
-    addLog("Тренировка: Сила и Магия +1.");
-    gainExp(10);
+    player.hp -= 10;
+    addLog("🏋️ Тренировка прошла успешно! +1 СИЛ/МАГ.");
+    gainExp(15);
 }
 
 function rest() {
     if (player.gold >= 10) {
         player.gold -= 10; player.hp = player.maxHp; player.mp = player.maxMp;
-        addLog("Вы отдохнули. Силы восстановлены!");
+        addLog("🛌 Полноценный отдых в таверне.");
         save(); updateUI();
     }
 }
@@ -127,10 +167,11 @@ function gainExp(amt) {
     if (player.exp >= player.nextLvlExp) {
         player.level++;
         player.exp = 0;
-        player.nextLvlExp = Math.floor(player.nextLvlExp * 1.5);
-        player.maxHp += 20; player.maxMp += 10;
+        player.nextLvlExp = Math.floor(player.nextLvlExp * 1.6);
+        player.maxHp += 25; player.maxMp += 15;
+        player.hp = player.maxHp;
         player.rank = ranks[Math.min(Math.floor(player.level / 5), ranks.length - 1)];
-        addLog(`⭐ Уровень повышен! Новый ранг: ${player.rank}`);
+        addLog(`🎉 НОВЫЙ УРОВЕНЬ: ${player.level}!`);
     }
     save(); updateUI();
 }
