@@ -3,28 +3,71 @@ let player = {
     hp: 100, maxHp: 100, mp: 50, maxMp: 50,
     strength: 10, magic: 10, gold: 0,
     rank: "Новичок", location: "Лес",
-    kills: 0,
-    inventory: { sword: false, staff: false, armor: false },
+    kills: 0, huntCount: 0,
+    avatar: null,
+    inventory: { sword: false, axe: false, staff: false, book: false, armor: false, plate: false },
     quest: { target: 5, current: 0, rewardGold: 100, rewardExp: 200, active: true }
 };
 
-const ranks = ["Новичок", "Подмастерье", "Мастер", "Магистр", "Мудрец", "Immortal"];
+const ranks = ["Новичок", "Подмастерье", "Мастер", "Магистр", "Мудрец", "Грандмастер", "Легенда", "Immortal"];
 const locations = {
-    "Лес": { minLvl: 1, danger: 15, loot: 12, exp: 30 },
-    "Пещеры": { minLvl: 5, danger: 35, loot: 35, exp: 70 },
-    "Замок": { minLvl: 10, danger: 65, loot: 90, exp: 160 }
+    "Лес": { minLvl: 1, danger: 15, loot: 15, exp: 35 },
+    "Пещеры": { minLvl: 5, danger: 40, loot: 45, exp: 80 },
+    "Замок": { minLvl: 10, danger: 75, loot: 120, exp: 180 }
 };
 
 const monsters = {
     "Лес": ["🌲Волк", "🌲Гоблин", "🌲Слизень"],
     "Пещеры": ["🦇Летучая мышь", "🦇Тролль", "🦇Паук"],
-    "Замок": ["🏰Рыцарь", "🏰Дракон", "🏰Вампир"]
+    "Замок": ["🏰Рыцарь-предатель", "🏰Горгулья", "🏰Вампир"]
 };
 
-function save() { localStorage.setItem('immortalVisualRPG', JSON.stringify(player)); }
+// Каталог пасхалок (события из жизни)
+const easterEggs = [
+    "Семья зовет ужинать. Вы сбежали с поля боя, но зато вкусно поели! +50 HP.",
+    "Вы попытались объяснить друзьям, кем работаете. Мана истощена до нуля.",
+    "Коллега попросил сделать отчет к пятнице, но сегодня уже пятница! -20 HP от стресса.",
+    "Ваш верный пес Тедди радостно принес вам мешочек! +50 золота.",
+    "Начальник звонит в выходной. Вы притворились мертвым. Навык скрытности повышен! +100 Опыта.",
+    "Жена сказала, что вы молодец. Все характеристики временно кажутся бесконечными! +Полное здоровье."
+];
+
+function save() { localStorage.setItem('immortalUltimate', JSON.stringify(player)); }
 function load() {
-    const data = localStorage.getItem('immortalVisualRPG');
-    if (data) { player = JSON.parse(data); updateUI(); }
+    const data = localStorage.getItem('immortalUltimate');
+    if (data) { 
+        player = JSON.parse(data); 
+        // Поддержка старых сохранений при обновах
+        if(player.huntCount === undefined) player.huntCount = 0;
+        updateUI(); 
+    }
+}
+
+// Загрузка фото аватара
+function uploadPhoto(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                player.avatar = e.target.result;
+                save(); updateUI();
+                addLog("📷 Фото успешно добавлено в профиль!", 'log-quest');
+            } catch (err) {
+                addLog("❌ Ошибка: файл слишком большой для сохранения браузером.", 'log-lose');
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Переключение вкладок магазина
+function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    event.target.classList.add('active');
+    document.getElementById('tab-' + tabName).classList.add('active');
 }
 
 setInterval(() => {
@@ -51,88 +94,121 @@ function updateUI() {
     document.getElementById('hp-fill').style.width = (player.hp / player.maxHp * 100) + "%";
     document.getElementById('mp-fill').style.width = (player.mp / player.maxMp * 100) + "%";
 
+    // Обновление аватара
+    if (player.avatar) {
+        document.getElementById('player-avatar').src = player.avatar;
+        document.getElementById('player-avatar').style.display = 'block';
+        document.getElementById('avatar-placeholder').style.display = 'none';
+    }
+
     updateQuestUI();
     checkItems();
-    updateCharacterVisual(); // Обновить вид рыцаря
+    updateCharacterVisual();
 }
 
 function updateQuestUI() {
     const q = player.quest;
     if (q.active) {
-        document.getElementById('quest-info').innerText = `Квест: Победить монстров (${q.current}/${q.target})`;
+        document.getElementById('quest-info').innerText = `Квест: Убить врагов (${q.current}/${q.target})`;
         document.getElementById('quest-fill').style.width = (q.current / q.target * 100) + "%";
-    } else {
-        document.getElementById('quest-info').innerText = "Квесты выполнены!";
-        document.getElementById('quest-fill').style.width = "0%";
     }
 }
 
-// НОВАЯ ФУНКЦИЯ: Обновление внешнего вида
 function updateCharacterVisual() {
     const viewer = document.getElementById('character-viewer');
-    if (player.inventory.sword) viewer.classList.add('has-sword');
-    if (player.inventory.armor) viewer.classList.add('has-armor');
+    viewer.className = 'character-stage'; // сброс
+    if (player.inventory.sword || player.inventory.axe) viewer.classList.add('has-sword');
+    if (player.inventory.armor || player.inventory.plate) viewer.classList.add('has-armor');
 }
 
 function checkItems() {
-    if (player.inventory.sword) markOwned('item-sword');
-    if (player.inventory.staff) markOwned('item-staff');
-    if (player.inventory.armor) markOwned('item-armor');
+    const inv = player.inventory;
+    ['sword', 'axe', 'staff', 'book', 'armor', 'plate'].forEach(item => {
+        if (inv[item]) markOwned(`item-${item}`);
+    });
 }
 
 function markOwned(id) {
     const el = document.getElementById(id);
-    el.classList.add('owned');
-    el.querySelector('button').innerText = "✅";
-    el.querySelector('button').disabled = true;
+    if(el) {
+        el.classList.add('owned');
+        el.querySelector('button').innerText = "✅";
+        el.querySelector('button').disabled = true;
+    }
 }
 
 function changeLoc(name) {
     if (player.level >= locations[name].minLvl) {
         player.location = name;
-        addLog(`✈️ Вы перешли в локацию ${name}.`);
+        addLog(`✈️ Локация: ${name}.`);
     } else {
-        addLog(`⚠️ Слишком опасно! Нужен уровень ${locations[name].minLvl}.`);
+        addLog(`⚠️ Нужен уровень ${locations[name].minLvl}.`);
     }
     updateUI();
 }
 
+function lifeEvent() {
+    let egg = easterEggs[Math.floor(Math.random() * easterEggs.length)];
+    addLog(`🎲 ${egg}`, 'log-easter');
+    
+    // Эффекты от приколов
+    if (egg.includes("Тедди")) player.gold += 50;
+    if (egg.includes("истощена")) player.mp = 0;
+    if (egg.includes("стресса")) player.hp -= 20;
+    if (egg.includes("вкусно поели") || egg.includes("Жена")) player.hp = player.maxHp;
+    if (egg.includes("Начальник")) gainExp(100);
+    
+    if (player.hp <= 0) player.hp = 10;
+    save(); updateUI();
+}
+
 function hunt(type) {
     let loc = locations[player.location];
-    if (type === 'magic' && player.mp < 15) { addLog("❌ Недостаточно маны!"); return; }
-    if (player.hp <= 25) { addLog("🩹 Вы слишком ранены! Отдохните."); return; }
+    if (type === 'magic' && player.mp < 20) { addLog("❌ Нужно 20 маны!"); return; }
+    if (player.hp <= 25) { addLog("🩹 Здоровье критическое!"); return; }
 
-    if (type === 'magic') player.mp -= 15;
+    if (type === 'magic') player.mp -= 20;
+    player.huntCount++;
 
-    let isWin = Math.random() > 0.15; 
-    let monsterList = monsters[player.location];
-    let currentMonster = monsterList[Math.floor(Math.random() * monsterList.length)];
+    // Система Боссов (Каждый 10-й бой)
+    let isBoss = (player.huntCount % 10 === 0);
+    let currentMonster = isBoss ? "🔥 БОСС ЛОКАЦИИ 🔥" : monsters[player.location][Math.floor(Math.random() * monsters[player.location].length)];
+    let successChance = isBoss ? 0.6 : 0.85; // На боссе шанс победить ниже
 
-    if (isWin) {
-        let dmg = type === 'magic' ? 5 : Math.floor(Math.random() * loc.danger);
-        let bonus = player.inventory.sword ? 20 : 0;
-        let goldLoot = Math.floor(Math.random() * loc.loot) + bonus;
+    if (Math.random() < successChance) {
+        let dmg = isBoss ? Math.floor(loc.danger * 1.5) : Math.floor(Math.random() * loc.danger);
+        if (type === 'magic') dmg = Math.floor(dmg / 2); // Магия бьет издалека, урон по нам меньше
+
+        let pwrBonus = (player.inventory.axe ? 40 : (player.inventory.sword ? 15 : 0));
+        let goldLoot = Math.floor(Math.random() * loc.loot) + pwrBonus + (isBoss ? 200 : 0);
         
         player.hp -= dmg;
         player.gold += goldLoot;
+        player.kills++;
         
         if (player.quest.active) {
             player.quest.current++;
             if (player.quest.current >= player.quest.target) finishQuest();
         }
 
-        addLog(`⚔️ Победа над ${currentMonster}! -${dmg} HP, +${goldLoot}💰`, 'log-win');
-        gainExp(loc.exp);
+        addLog(`⚔️ Убит ${currentMonster}! -${dmg} HP, +${goldLoot}💰`, 'log-win');
+        gainExp(loc.exp * (isBoss ? 3 : 1));
     } else {
-        player.hp -= 30;
-        addLog(`🛡️ Вы отступили от ${currentMonster}! Монстр слишком сильный.`);
+        player.hp -= isBoss ? 60 : 30;
+        addLog(`🛡️ ${currentMonster} оказался сильнее. Вы сбежали!`, 'log-lose');
+    }
+
+    // Случайное вмешательство питомца (Секретная пасхалка)
+    if (Math.random() > 0.95) {
+        player.hp = Math.min(player.hp + 40, player.maxHp);
+        addLog("🐶 Из кустов выскочил Тедди и зализал ваши раны! +40 HP.", 'log-easter');
     }
 
     if (player.hp <= 0) {
         player.hp = 25; player.gold = Math.floor(player.gold * 0.7);
-        addLog("💀 Поражение! Потеряно 30% золота.", 'log-lose');
+        addLog("💀 Вы пали в бою. Потеряно 30% золота.", 'log-lose');
     }
-    updateUI();
+    save(); updateUI();
 }
 
 function finishQuest() {
@@ -142,38 +218,33 @@ function finishQuest() {
     
     player.quest.target += 5;
     player.quest.current = 0;
-    player.quest.rewardGold += 50;
-    player.quest.rewardExp += 100;
+    player.quest.rewardGold += 80;
+    player.quest.rewardExp += 150;
 }
 
 function buyItem(item, cost) {
     if (player.gold >= cost) {
         player.gold -= cost;
         player.inventory[item] = true;
+        
         if (item === 'sword') player.strength += 15;
+        if (item === 'axe') player.strength += 30;
         if (item === 'staff') player.magic += 15;
+        if (item === 'book') player.magic += 40;
         if (item === 'armor') { player.maxHp += 50; player.hp += 50; }
-        addLog(`🔨 Куплено!`);
+        if (item === 'plate') { player.maxHp += 150; player.hp += 150; }
+        
+        addLog(`🔨 В каталог добавлено: ${item}!`);
         save(); updateUI();
     } else {
         addLog("💰 Мало золота!");
     }
 }
 
-function train() {
-    if (player.hp < 20) { addLog("Сначала отдохните!"); return; }
-    player.strength += 1; player.magic += 1;
-    player.hp -= 10;
-    addLog("🏋️ Тренировка: +1 СИЛ/МАГ.");
-    gainExp(15);
-}
-
 function rest() {
-    if (player.gold >= 10) {
-        player.gold -= 10; player.hp = player.maxHp; player.mp = player.maxMp;
-        addLog("🛌 Отдых в таверне.");
-        save(); updateUI();
-    }
+    player.hp = player.maxHp; player.mp = player.maxMp;
+    addLog("🛌 Полноценный отдых.");
+    save(); updateUI();
 }
 
 function gainExp(amt) {
@@ -182,10 +253,10 @@ function gainExp(amt) {
         player.level++;
         player.exp = 0;
         player.nextLvlExp = Math.floor(player.nextLvlExp * 1.6);
-        player.maxHp += 25; player.maxMp += 15;
+        player.maxHp += 30; player.maxMp += 20;
         player.hp = player.maxHp;
         player.rank = ranks[Math.min(Math.floor(player.level / 5), ranks.length - 1)];
-        addLog(`🎉 НОВЫЙ УРОВЕНЬ: ${player.level}!`);
+        addLog(`🎉 НОВЫЙ УРОВЕНЬ: ${player.level}! Ранг: ${player.rank}`);
     }
     save(); updateUI();
 }
