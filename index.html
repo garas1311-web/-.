@@ -9,37 +9,40 @@
 <body>
     <div id="game-container">
         <header>
-            <h1>⚔️ <span id="rank-name">Новичок</span></h1>
-            <div id="location-name">📍 Деревня</div>
+            <h1><span class="icon-rank"></span> <span id="rank-name">Новичок</span></h1>
+            <div id="location-name">Деревня</div>
         </header>
 
         <section id="stats-panel">
-            <div class="stats-header">Уровень <span id="level">1</span> | 💰 <span id="gold">0</span></div>
+            <div class="stats-header">
+                <span>Уровень <span id="level">1</span></span>
+                <span class="stat-gold">💰 <span id="gold">0</span></span>
+            </div>
             
-            <div class="stat-group">
+            <div class="stat-group exp-group">
                 <div class="stat-label">Опыт: <span id="exp">0</span> / <span id="next-lvl-exp">100</span></div>
                 <div class="progress-bar exp"><div id="exp-fill"></div></div>
             </div>
             
-            <div class="stat-group">
-                <div class="stat-label">❤️ Здоровье: <span id="hp">100</span> / <span id="max-hp">100</span></div>
+            <div class="stat-group hp-group">
+                <div class="stat-label">❤️ HP: <span id="hp">100</span> / <span id="max-hp">100</span></div>
                 <div class="progress-bar health"><div id="hp-fill"></div></div>
             </div>
 
-            <div class="stat-group">
-                <div class="stat-label">✨ Мана: <span id="mp">50</span> / <span id="max-mp">50</span></div>
+            <div class="stat-group mp-group">
+                <div class="stat-label">✨ MP: <span id="mp">50</span> / <span id="max-mp">50</span></div>
                 <div class="progress-bar mana"><div id="mp-fill"></div></div>
             </div>
 
-            <div class="stats-grid">
-                <div>💪 Сила: <span id="stat-strength">10</span></div>
-                <div>🔮 Магия: <span id="stat-magic">10</span></div>
+            <div class="stats-grid icon-stats">
+                <div>💪 <span id="stat-strength">10</span></div>
+                <div>🔮 <span id="stat-magic">10</span></div>
             </div>
         </section>
 
         <section id="quest-panel">
             <h3>📜 Текущий квест</h3>
-            <div id="quest-info">Заданий пока нет. Отправляйтесь на охоту!</div>
+            <div id="quest-info">Заданий пока нет.</div>
             <div class="progress-bar quest"><div id="quest-fill"></div></div>
         </section>
 
@@ -47,15 +50,15 @@
             <h3>🗺️ Карта</h3>
             <div class="map-grid">
                 <button onclick="changeLoc('Лес')">🌲 Лес (1+)</button>
-                <button onclick="changeLoc('Пещеры')"> Bat Пещеры (5+)</button>
+                <button onclick="changeLoc('Пещеры')">🦇 Пещеры (5+)</button>
                 <button onclick="changeLoc('Замок')">🏰 Замок (10+)</button>
             </div>
         </nav>
 
         <section id="action-panel">
             <div class="actions-grid">
-                <button onclick="hunt('sword')" class="danger-btn">⚔️ Рубить</button>
-                <button onclick="hunt('magic')" class="magic-btn">🔥 Сжечь</button>
+                <button onclick="hunt('sword')" class="danger-btn btn-with-icon"><span class="icon-sword"></span>⚔️ Рубить</button>
+                <button onclick="hunt('magic')" class="magic-btn btn-with-icon"><span class="icon-staff"></span>🔥 Сжечь</button>
                 <button onclick="rest()" class="heal-btn">🛌 Отдых (10г)</button>
                 <button onclick="train()" class="train-btn">🏋️ Зал</button>
             </div>
@@ -64,14 +67,23 @@
         <section id="shop-panel">
             <h3>🛒 Лавка</h3>
             <div class="shop-list">
-                <div class="shop-item" id="item-sword">🗡️ Меч (+10 СИЛ) <button onclick="buyItem('sword', 100)">100г</button></div>
-                <div class="shop-item" id="item-staff">🪄 Посох (+10 МАГ) <button onclick="buyItem('staff', 150)">150г</button></div>
-                <div class="shop-item" id="item-armor">🛡️ Броня (+50 HP) <button onclick="buyItem('armor', 250)">250г</button></div>
+                <div class="shop-item" id="item-sword">
+                    <span class="item-name">🗡️ Меч (+15 СИЛ)</span>
+                    <button onclick="buyItem('sword', 100)">100г</button>
+                </div>
+                <div class="shop-item" id="item-staff">
+                    <span class="item-name">🪄 Посох (+15 МАГ)</span>
+                    <button onclick="buyItem('staff', 150)">150г</button>
+                </div>
+                <div class="shop-item" id="item-armor">
+                    <span class="item-name">🛡️ Броня (+50 HP)</span>
+                    <button onclick="buyItem('armor', 250)">250г</button>
+                </div>
             </div>
         </section>
 
         <div id="log-panel">
-            <div id="game-log">Добро пожаловать в мир магии...</div>
+            <div id="game-log">Мир ждет своего героя...</div>
         </div>
     </div>
     <script src="script.js"></script>
