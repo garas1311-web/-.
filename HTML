@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy RPG: Path to Immortal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <header>
+            <h1>Путь Мастера</h1>
+            <div id="rank-display">Ранг: <span id="rank-name">Новичок</span></div>
+        </header>
+
+        <section id="stats-panel">
+            <h2>Ваш Герой</h2>
+            <p>Уровень: <span id="level">1</span></p>
+            <p>Опыт: <span id="exp">0</span> / <span id="next-lvl-exp">100</span></p>
+            <div class="progress-bar"><div id="exp-fill"></div></div>
+            <hr>
+            <p>Сила: <span id="stat-strength">10</span></p>
+            <p>Магия: <span id="stat-magic">10</span></p>
+            <p>Золото: <span id="gold">0</span></p>
+        </section>
+
+        <section id="action-panel">
+            <h2>Доступные действия</h2>
+            <button onclick="train('strength')">Тренировка на манекене (+Сила)</button>
+            <button onclick="train('magic')">Медитация (+Магия)</button>
+            <button onclick="hunt()">Охота на монстров (+Опыт/Золото)</button>
+        </section>
+
+        <div id="log-panel">
+            <h3>Журнал событий</h3>
+            <div id="game-log">Вы начали свой путь...</div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
