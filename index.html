@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fantasy RPG: Path to Immortal</title>
+    <title>Path to Immortal: RPG</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -15,39 +15,42 @@
 
         <section id="stats-panel">
             <h2>Ваш Герой</h2>
-            <p>Уровень: <span id="level">1</span></p>
-            <p>Опыт: <span id="exp">0</span> / <span id="next-lvl-exp">100</span></p>
-            <div class="progress-bar"><div id="exp-fill"></div></div>
-            <hr>
-            <p>Сила: <span id="stat-strength">10</span></p>
-            <p>Магия: <span id="stat-magic">10</span></p>
-            <p>Золото: <span id="gold">0</span></p>
+            <p>Уровень: <span id="level">1</span> | Золото: <span id="gold">0</span></p>
+            
+            <div class="stat-label">Опыт: <span id="exp">0</span> / <span id="next-lvl-exp">100</span></div>
+            <div class="progress-bar exp"><div id="exp-fill"></div></div>
+            
+            <div class="stat-label">Здоровье: <span id="hp">100</span> / <span id="max-hp">100</span></div>
+            <div class="progress-bar health"><div id="hp-fill"></div></div>
+
+            <div class="stats-grid">
+                <div>Сила: <span id="stat-strength">10</span></div>
+                <div>Магия: <span id="stat-magic">10</span></div>
+            </div>
         </section>
 
         <section id="action-panel">
-            <h2>Доступные действия</h2>
-            <button onclick="train('strength')">Тренировка на манекене (+Сила)</button>
-            <button onclick="train('magic')">Медитация (+Магия)</button>
-            <button onclick="hunt()">Охота на монстров (+Опыт/Золото)</button>
+            <h2>Действия</h2>
+            <div class="actions-grid">
+                <button onclick="train('strength')">Тренажер (+Сила)</button>
+                <button onclick="train('magic')">Медитация (+Магия)</button>
+                <button onclick="hunt()" class="danger-btn">Охота (Риск HP)</button>
+                <button onclick="rest()" class="heal-btn">Отдых (5 золота)</button>
+            </div>
+        </section>
+
+        <section id="shop-panel">
+            <h2>Лавка Кузнеца</h2>
+            <div class="shop-item">
+                <span>Стальной меч (+5 Силы, +Бонус к золоту)</span>
+                <button id="buy-sword" onclick="buyItem('sword', 50)">50г</button>
+            </div>
         </section>
 
         <div id="log-panel">
-            <h3>Журнал событий</h3>
-            <div id="game-log">Вы начали свой путь...</div>
+            <div id="game-log">Вы прибыли в деревню...</div>
         </div>
     </div>
     <script src="script.js"></script>
 </body>
 </html>
-<p>Здоровье: <span id="hp">100</span> / <span id="max-hp">100</span></p>
-<div class="progress-bar health"><div id="hp-fill"></div></div>
-
-<button onclick="rest()" style="background: #27ae60;">Отдохнуть (+20 HP) — 5 золота</button>
-
-<section id="shop-panel">
-    <h2>Лавка кузнеца</h2>
-    <div class="shop-item">
-        <span>Старый меч (+5 к урону)</span>
-        <button id="buy-sword" onclick="buyItem('sword', 50)">Купить (50г)</button>
-    </div>
-</section>
