@@ -1,56 +1,141 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Path to Immortal: RPG</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div id="game-container">
-        <header>
-            <h1>Путь Мастера</h1>
-            <div id="rank-display">Ранг: <span id="rank-name">Новичок</span></div>
-        </header>
+// Состояние игрока
+let player = {
+    level: 1,
+    exp: 0,
+    nextLvlExp: 100,
+    hp: 100,
+    maxHp: 100,
+    strength: 10,
+    magic: 10,
+    gold: 0,
+    rank: "Новичок",
+    inventory: { sword: false }
+};
 
-        <section id="stats-panel">
-            <h2>Ваш Герой</h2>
-            <p>Уровень: <span id="level">1</span> | Золото: <span id="gold">0</span></p>
-            
-            <div class="stat-label">Опыт: <span id="exp">0</span> / <span id="next-lvl-exp">100</span></div>
-            <div class="progress-bar exp"><div id="exp-fill"></div></div>
-            
-            <div class="stat-label">Здоровье: <span id="hp">100</span> / <span id="max-hp">100</span></div>
-            <div class="progress-bar health"><div id="hp-fill"></div></div>
+const ranks = ["Новичок", "Подмастерье", "Мастер", "Магистр", "Immortal"];
 
-            <div class="stats-grid">
-                <div>Сила: <span id="stat-strength">10</span></div>
-                <div>Магия: <span id="stat-magic">10</span></div>
-            </div>
-        </section>
+// Сохранение и загрузка
+function save() { localStorage.setItem('heroSave', JSON.stringify(player)); }
+function load() {
+    const data = localStorage.getItem('heroSave');
+    if (data) {
+        player = JSON.parse(data);
+        updateUI();
+    }
+}
 
-        <section id="action-panel">
-            <h2>Действия</h2>
-            <div class="actions-grid">
-                <button onclick="train('strength')">Тренажер (+Сила)</button>
-                <button onclick="train('magic')">Медитация (+Магия)</button>
-                <button onclick="hunt()" class="danger-btn">Охота (Риск HP)</button>
-                <button onclick="rest()" class="heal-btn">Отдых (5 золота)</button>
-            </div>
-        </section>
+// Регенерация HP (1 HP каждые 2 секунды)
+setInterval(() => {
+    if (player.hp < player.maxHp) {
+        player.hp = Math.min(player.hp + 1, player.maxHp);
+        updateUI();
+    }
+}, 2000);
 
-        <section id="shop-panel">
-            <h2>Лавка Кузнеца</h2>
-            <div class="shop-item">
-                <span>Стальной меч (+5 Силы, +Бонус к золоту)</span>
-                <button id="buy-sword" onclick="buyItem('sword', 50)">50г</button>
-            </div>
-        </section>
+function updateUI() {
+    document.getElementById('level').innerText = player.level;
+    document.getElementById('exp').innerText = player.exp;
+    document.getElementById('next-lvl-exp').innerText = player.nextLvlExp;
+    document.getElementById('hp').innerText = player.hp;
+    document.getElementById('max-hp').innerText = player.maxHp;
+    document.getElementById('stat-strength').innerText = player.strength;
+    document.getElementById('stat-magic').innerText = player.magic;
+    document.getElementById('gold').innerText = player.gold;
+    document.getElementById('rank-name').innerText = player.rank;
 
-        <div id="log-panel">
-            <div id="game-log">Вы прибыли в деревню...</div>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+    document.getElementById('exp-fill').style.width = (player.exp / player.nextLvlExp * 100) + "%";
+    document.getElementById('hp-fill').style.width = (player.hp / player.maxHp * 100) + "%";
+
+    const swordBtn = document.getElementById('buy-sword');
+    if(player.inventory.sword) {
+        swordBtn.innerText = "Владеете";
+        swordBtn.disabled = true;
+    }
+}
+
+function train(type) {
+    if (type === 'strength') player.strength++;
+    else player.magic++;
+    addLog(`Тренировка завершена. ${type === 'strength' ? 'Сила' : 'Магия'} +1.`);
+    gainExp(15);
+}
+
+function hunt() {
+    if (player.hp <= 20) {
+        addLog("Вы слишком ранены для охоты! Отдохните.");
+        return;
+    }
+
+    // Шанс на случайное событие (20%)
+    let chance = Math.random();
+    if (chance > 0.8) {
+        let foundGold = 30;
+        player.gold += foundGold;
+        addLog(`✨ Вы нашли сундук странника! +${foundGold} золота.`);
+    } else {
+        let damage = Math.floor(Math.random() * 25) + 5;
+        let loot = Math.floor(Math.random() * 10) + 5 + (player.inventory.sword ? 10 : 0);
+        player.hp -= damage;
+        player.gold += loot;
+        addLog(`Бой с гоблином: -${damage} HP, +${loot} золота.`);
+    }
+
+    gainExp(35);
+    if (player.hp <= 0) {
+        player.hp = 10;
+        player.gold = Math.floor(player.gold / 2);
+        addLog("💀 Вы потеряли сознание и часть золота! Добрые люди спасли вас.");
+    }
+}
+
+function rest() {
+    if (player.gold >= 5) {
+        player.gold -= 5;
+        player.hp = player.maxHp;
+        addLog("Вы сладко выспались в таверне. HP полностью восстановлено.");
+        updateUI();
+        save();
+    } else {
+        addLog("Не хватает золота на ночлег.");
+    }
+}
+
+function buyItem(item, cost) {
+    if (player.gold >= cost && !player.inventory[item]) {
+        player.gold -= cost;
+        player.inventory[item] = true;
+        if(item === 'sword') player.strength += 10;
+        addLog("Вы купили Меч! Теперь охота приносит больше золота.");
+        updateUI();
+        save();
+    } else {
+        addLog("Недостаточно средств.");
+    }
+}
+
+function gainExp(amt) {
+    player.exp += amt;
+    if (player.exp >= player.nextLvlExp) {
+        player.level++;
+        player.exp = 0;
+        player.nextLvlExp = Math.floor(player.nextLvlExp * 1.6);
+        player.maxHp += 10;
+        player.hp = player.maxHp;
+        
+        let rankIdx = Math.min(Math.floor(player.level / 5), ranks.length - 1);
+        player.rank = ranks[rankIdx];
+        
+        addLog(`🎊 Уровень ${player.level} достигнут! Ранг: ${player.rank}.`);
+    }
+    updateUI();
+    save();
+}
+
+function addLog(msg) {
+    const log = document.getElementById('game-log');
+    log.innerHTML = `<div>> ${msg}</div>` + log.innerHTML;
+}
+
+// Старт
+load();
+updateUI();
