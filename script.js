@@ -15,16 +15,15 @@ const locations = {
     "Замок": { minLvl: 10, danger: 65, loot: 90, exp: 160 }
 };
 
-// Простой список "монстров" для лога
 const monsters = {
     "Лес": ["🌲Волк", "🌲Гоблин", "🌲Слизень"],
     "Пещеры": ["🦇Летучая мышь", "🦇Тролль", "🦇Паук"],
     "Замок": ["🏰Рыцарь", "🏰Дракон", "🏰Вампир"]
 };
 
-function save() { localStorage.setItem('immortalIconsRPG', JSON.stringify(player)); }
+function save() { localStorage.setItem('immortalVisualRPG', JSON.stringify(player)); }
 function load() {
-    const data = localStorage.getItem('immortalIconsRPG');
+    const data = localStorage.getItem('immortalVisualRPG');
     if (data) { player = JSON.parse(data); updateUI(); }
 }
 
@@ -54,6 +53,7 @@ function updateUI() {
 
     updateQuestUI();
     checkItems();
+    updateCharacterVisual(); // Обновить вид рыцаря
 }
 
 function updateQuestUI() {
@@ -67,17 +67,23 @@ function updateQuestUI() {
     }
 }
 
+// НОВАЯ ФУНКЦИЯ: Обновление внешнего вида
+function updateCharacterVisual() {
+    const viewer = document.getElementById('character-viewer');
+    if (player.inventory.sword) viewer.classList.add('has-sword');
+    if (player.inventory.armor) viewer.classList.add('has-armor');
+}
+
 function checkItems() {
-    const inv = player.inventory;
-    if (inv.sword) markOwned('item-sword');
-    if (inv.staff) markOwned('item-staff');
-    if (inv.armor) markOwned('item-armor');
+    if (player.inventory.sword) markOwned('item-sword');
+    if (player.inventory.staff) markOwned('item-staff');
+    if (player.inventory.armor) markOwned('item-armor');
 }
 
 function markOwned(id) {
     const el = document.getElementById(id);
     el.classList.add('owned');
-    el.querySelector('button').innerText = "✅ Есть";
+    el.querySelector('button').innerText = "✅";
     el.querySelector('button').disabled = true;
 }
 
@@ -98,7 +104,7 @@ function hunt(type) {
 
     if (type === 'magic') player.mp -= 15;
 
-    let isWin = Math.random() > 0.15; // 85% шанс на успех
+    let isWin = Math.random() > 0.15; 
     let monsterList = monsters[player.location];
     let currentMonster = monsterList[Math.floor(Math.random() * monsterList.length)];
 
@@ -109,7 +115,6 @@ function hunt(type) {
         
         player.hp -= dmg;
         player.gold += goldLoot;
-        player.kills++;
         
         if (player.quest.active) {
             player.quest.current++;
@@ -133,9 +138,8 @@ function hunt(type) {
 function finishQuest() {
     player.gold += player.quest.rewardGold;
     gainExp(player.quest.rewardExp);
-    addLog(`🎁 КВЕСТ ВЫПОЛНЕН! +${player.quest.rewardGold}💰 и +${player.quest.rewardExp} опыта.`, 'log-quest');
+    addLog(`🎁 КВЕСТ ВЫПОЛНЕН! +${player.quest.rewardGold}💰`, 'log-quest');
     
-    // Генерируем новый квест
     player.quest.target += 5;
     player.quest.current = 0;
     player.quest.rewardGold += 50;
@@ -149,7 +153,7 @@ function buyItem(item, cost) {
         if (item === 'sword') player.strength += 15;
         if (item === 'staff') player.magic += 15;
         if (item === 'armor') { player.maxHp += 50; player.hp += 50; }
-        addLog(`🔨 Куплено: ${item}!`, 'log-item');
+        addLog(`🔨 Куплено!`);
         save(); updateUI();
     } else {
         addLog("💰 Мало золота!");
@@ -160,14 +164,14 @@ function train() {
     if (player.hp < 20) { addLog("Сначала отдохните!"); return; }
     player.strength += 1; player.magic += 1;
     player.hp -= 10;
-    addLog("🏋️ Тренировка прошла успешно! +1 СИЛ/МАГ.");
+    addLog("🏋️ Тренировка: +1 СИЛ/МАГ.");
     gainExp(15);
 }
 
 function rest() {
     if (player.gold >= 10) {
         player.gold -= 10; player.hp = player.maxHp; player.mp = player.maxMp;
-        addLog("🛌 Полноценный отдых в таверне.");
+        addLog("🛌 Отдых в таверне.");
         save(); updateUI();
     }
 }
@@ -186,13 +190,12 @@ function gainExp(amt) {
     save(); updateUI();
 }
 
-// Обновленная функция лога с поддержкой CSS-классов
 function addLog(msg, className = '') {
     const log = document.getElementById('game-log');
     let span = document.createElement('div');
     if (className) span.classList.add(className);
     span.innerText = `> ${msg}`;
-    log.prepend(span); // Новые сообщения сверху
+    log.prepend(span); 
 }
 
 load(); updateUI();
