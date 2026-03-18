@@ -54,3 +54,34 @@ button:hover { background: #e94560; }
     font-size: 0.9em;
     border: 1px solid #e94560;
 }
+.health #hp-fill {
+    background: #27ae60; /* Зеленый цвет для здоровья */
+    width: 100%;
+}
+
+#shop-panel {
+    margin-top: 20px;
+    border-top: 2px solid #e94560;
+    padding-top: 10px;
+}
+
+.shop-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0f3460;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+.shop-item button {
+    width: auto;
+    margin: 0;
+    padding: 5px 15px;
+}
+
+.shop-item.owned {
+    opacity: 0.6;
+    background: #1a1a2e;
+}
