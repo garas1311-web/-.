@@ -15,9 +15,16 @@ const locations = {
     "Замок": { minLvl: 10, danger: 65, loot: 90, exp: 160 }
 };
 
-function save() { localStorage.setItem('immortalQuestRPG', JSON.stringify(player)); }
+// Простой список "монстров" для лога
+const monsters = {
+    "Лес": ["🌲Волк", "🌲Гоблин", "🌲Слизень"],
+    "Пещеры": ["🦇Летучая мышь", "🦇Тролль", "🦇Паук"],
+    "Замок": ["🏰Рыцарь", "🏰Дракон", "🏰Вампир"]
+};
+
+function save() { localStorage.setItem('immortalIconsRPG', JSON.stringify(player)); }
 function load() {
-    const data = localStorage.getItem('immortalQuestRPG');
+    const data = localStorage.getItem('immortalIconsRPG');
     if (data) { player = JSON.parse(data); updateUI(); }
 }
 
@@ -55,7 +62,7 @@ function updateQuestUI() {
         document.getElementById('quest-info').innerText = `Квест: Победить монстров (${q.current}/${q.target})`;
         document.getElementById('quest-fill').style.width = (q.current / q.target * 100) + "%";
     } else {
-        document.getElementById('quest-info').innerText = "Все квесты выполнены! Ждите новых заданий.";
+        document.getElementById('quest-info').innerText = "Квесты выполнены!";
         document.getElementById('quest-fill').style.width = "0%";
     }
 }
@@ -70,7 +77,7 @@ function checkItems() {
 function markOwned(id) {
     const el = document.getElementById(id);
     el.classList.add('owned');
-    el.querySelector('button').innerText = "✅";
+    el.querySelector('button').innerText = "✅ Есть";
     el.querySelector('button').disabled = true;
 }
 
@@ -92,6 +99,9 @@ function hunt(type) {
     if (type === 'magic') player.mp -= 15;
 
     let isWin = Math.random() > 0.15; // 85% шанс на успех
+    let monsterList = monsters[player.location];
+    let currentMonster = monsterList[Math.floor(Math.random() * monsterList.length)];
+
     if (isWin) {
         let dmg = type === 'magic' ? 5 : Math.floor(Math.random() * loc.danger);
         let bonus = player.inventory.sword ? 20 : 0;
@@ -106,16 +116,16 @@ function hunt(type) {
             if (player.quest.current >= player.quest.target) finishQuest();
         }
 
-        addLog(`⚔️ Победа в ${player.location}! -${dmg} HP, +${goldLoot}💰`);
+        addLog(`⚔️ Победа над ${currentMonster}! -${dmg} HP, +${goldLoot}💰`, 'log-win');
         gainExp(loc.exp);
     } else {
         player.hp -= 30;
-        addLog("🛡️ Вы отступили! Монстр оказался слишком сильным.");
+        addLog(`🛡️ Вы отступили от ${currentMonster}! Монстр слишком сильный.`);
     }
 
     if (player.hp <= 0) {
         player.hp = 25; player.gold = Math.floor(player.gold * 0.7);
-        addLog("💀 Поражение! Потеряно 30% золота.");
+        addLog("💀 Поражение! Потеряно 30% золота.", 'log-lose');
     }
     updateUI();
 }
@@ -123,7 +133,7 @@ function hunt(type) {
 function finishQuest() {
     player.gold += player.quest.rewardGold;
     gainExp(player.quest.rewardExp);
-    addLog(`🎁 КВЕСТ ВЫПОЛНЕН! +${player.quest.rewardGold}💰 и +${player.quest.rewardExp} опыта.`);
+    addLog(`🎁 КВЕСТ ВЫПОЛНЕН! +${player.quest.rewardGold}💰 и +${player.quest.rewardExp} опыта.`, 'log-quest');
     
     // Генерируем новый квест
     player.quest.target += 5;
@@ -139,7 +149,7 @@ function buyItem(item, cost) {
         if (item === 'sword') player.strength += 15;
         if (item === 'staff') player.magic += 15;
         if (item === 'armor') { player.maxHp += 50; player.hp += 50; }
-        addLog(`🔨 Куплено: ${item}!`);
+        addLog(`🔨 Куплено: ${item}!`, 'log-item');
         save(); updateUI();
     } else {
         addLog("💰 Мало золота!");
@@ -176,9 +186,13 @@ function gainExp(amt) {
     save(); updateUI();
 }
 
-function addLog(msg) {
+// Обновленная функция лога с поддержкой CSS-классов
+function addLog(msg, className = '') {
     const log = document.getElementById('game-log');
-    log.innerHTML = `<div>> ${msg}</div>` + log.innerHTML;
+    let span = document.createElement('div');
+    if (className) span.classList.add(className);
+    span.innerText = `> ${msg}`;
+    log.prepend(span); // Новые сообщения сверху
 }
 
 load(); updateUI();
