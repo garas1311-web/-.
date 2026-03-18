@@ -10,6 +10,22 @@ let player = {
 
 const ranks = ["Новичок", "Подмастерье", "Мастер", "Магистр", "Immortal"];
 
+// --- ФУНКЦИИ СОХРАНЕНИЯ ---
+
+function saveGame() {
+    localStorage.setItem('fantasyRPG_save', JSON.stringify(player));
+}
+
+function loadGame() {
+    const savedData = localStorage.getItem('fantasyRPG_save');
+    if (savedData) {
+        player = JSON.parse(savedData);
+        updateUI();
+    }
+}
+
+// --- ЛОГИКА ИГРЫ ---
+
 function updateUI() {
     document.getElementById('level').innerText = player.level;
     document.getElementById('exp').innerText = player.exp;
@@ -24,8 +40,17 @@ function updateUI() {
 function train(type) {
     if (type === 'strength') player.strength++;
     else player.magic++;
-    addLog(`Вы усердно тренируетесь. ${type === 'strength' ? 'Сила' : 'Магия'} выросла!`);
+    addLog(`Вы тренируете ${type === 'strength' ? 'силу' : 'магию'}.`);
     gainExp(20);
+    saveGame(); // Сохраняем после тренировки
+}
+
+function hunt() {
+    let earnedGold = Math.floor(Math.random() * 10) + 5;
+    player.gold += earnedGold;
+    addLog(`Вы победили слабого монстра и нашли ${earnedGold} золотых!`);
+    gainExp(40);
+    saveGame(); // Сохраняем после охоты
 }
 
 function gainExp(amount) {
@@ -35,7 +60,7 @@ function gainExp(amount) {
         player.exp = 0;
         player.nextLvlExp = Math.floor(player.nextLvlExp * 1.5);
         updateRank();
-        addLog("Уровень повышен! Вы стали сильнее.");
+        addLog("Уровень повышен! Ваш ранг растет.");
     }
     updateUI();
 }
@@ -50,5 +75,6 @@ function addLog(message) {
     log.innerHTML = `> ${message}<br>` + log.innerHTML;
 }
 
-// Инициализация
+// Инициализация при запуске
+loadGame(); 
 updateUI();
