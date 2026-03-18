@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Immortal Path: Ultimate Edition</title>
+    <title>Immortal Path: Action Update</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,7 +19,7 @@
                     <img id="player-avatar" src="" alt="" style="display: none;">
                     <span id="avatar-placeholder">👤</span>
                 </div>
-                <label for="avatar-upload" class="avatar-btn">📷 Загрузить фото</label>
+                <label for="avatar-upload" class="avatar-btn">📷 Фото</label>
                 <input type="file" id="avatar-upload" accept="image/*" onchange="uploadPhoto(event)">
             </div>
             
@@ -35,25 +35,11 @@
             </div>
         </section>
 
-        <section id="stats-panel">
-            <div class="stat-group hp-group">
-                <div class="stat-label">❤️ HP: <span id="hp">100</span>/<span id="max-hp">100</span></div>
-                <div class="progress-bar health"><div id="hp-fill"></div></div>
-            </div>
-            <div class="stat-group mp-group">
-                <div class="stat-label">✨ MP: <span id="mp">50</span>/<span id="max-mp">50</span></div>
-                <div class="progress-bar mana"><div id="mp-fill"></div></div>
-            </div>
-            <div class="stats-grid icon-stats">
-                <div>💪 <span id="stat-strength">10</span></div>
-                <div>🔮 <span id="stat-magic">10</span></div>
-            </div>
-        </section>
-
-        <section id="character-viewer">
-            <div class="character-stage">
+        <section id="battle-arena" class="loc-Лес">
+            <div id="hero-stage">
                 <svg class="pixel-knight" viewBox="0 0 50 80" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="15" y="30" width="20" height="30" fill="#7f8c8d" rx="2"/>
+                    <rect class="knight-body" x="15" y="30" width="20" height="30" fill="#7f8c8d" rx="2"/>
+                    <path class="plate-shoulders" d="M 12 30 Q 25 23 38 30 L 39 36 Q 25 32 11 36 Z" fill="#f39c12"/>
                     <rect x="17" y="15" width="16" height="18" fill="#95a5a6" rx="5"/>
                     <rect x="20" y="22" width="10" height="3" fill="#2c3e50"/>
                     <rect x="17" y="60" width="7" height="15" fill="#7f8c8d"/>
@@ -65,6 +51,22 @@
                         <rect x="-3" y="10" width="10" height="3" fill="#e74c3c"/>
                     </g>
                 </svg>
+                <div id="magic-projectile">✨</div>
+                <div id="hero-damage" class="floating-text"></div>
+            </div>
+
+            <div id="enemy-stage">
+                <div id="enemy-sprite">🌲</div>
+                <div id="enemy-damage" class="floating-text"></div>
+            </div>
+        </section>
+
+        <section id="stats-panel">
+            <div class="stats-grid icon-stats">
+                <div class="hp-text">❤️ <span id="hp">100</span>/<span id="max-hp">100</span></div>
+                <div class="mp-text">✨ <span id="mp">50</span>/<span id="max-mp">50</span></div>
+                <div>💪 <span id="stat-strength">10</span></div>
+                <div>🔮 <span id="stat-magic">10</span></div>
             </div>
         </section>
 
@@ -84,39 +86,39 @@
 
         <section id="action-panel">
             <div class="actions-grid">
-                <button onclick="hunt('sword')" class="danger-btn">⚔️ Рубить</button>
-                <button onclick="hunt('magic')" class="magic-btn">🔥 Сжечь</button>
+                <button id="btn-sword" onclick="hunt('sword')" class="danger-btn">⚔️ Рубить</button>
+                <button id="btn-magic" onclick="hunt('magic')" class="magic-btn">🔥 Сжечь</button>
                 <button onclick="rest()" class="heal-btn">🛌 Отдых</button>
-                <button onclick="lifeEvent()" class="event-btn">🎲 Искать приключения</button>
+                <button onclick="lifeEvent()" class="event-btn">🎲 Приключения</button>
             </div>
         </section>
 
         <section id="shop-panel">
-            <h3>🛒 Развитый Каталог</h3>
+            <h3>🛒 Каталог</h3>
             <div class="shop-tabs">
                 <button onclick="switchTab('weapons')" class="tab-btn active">Оружие</button>
-                <button onclick="switchTab('magic')" class="tab-btn">Магия</button>
                 <button onclick="switchTab('armor')" class="tab-btn">Броня</button>
+                <button onclick="switchTab('memes')" class="tab-btn">Мемы</button>
             </div>
             
             <div id="tab-weapons" class="shop-list tab-content active">
                 <div class="shop-item" id="item-sword"><span class="item-name">🗡️ Меч (+15 СИЛ)</span><button onclick="buyItem('sword', 100)">100г</button></div>
-                <div class="shop-item" id="item-axe"><span class="item-name">🪓 Топор (+30 СИЛ)</span><button onclick="buyItem('axe', 500)">500г</button></div>
-            </div>
-            
-            <div id="tab-magic" class="shop-list tab-content">
                 <div class="shop-item" id="item-staff"><span class="item-name">🪄 Посох (+15 МАГ)</span><button onclick="buyItem('staff', 150)">150г</button></div>
-                <div class="shop-item" id="item-book"><span class="item-name">📖 Гримуар (+40 МАГ)</span><button onclick="buyItem('book', 600)">600г</button></div>
             </div>
             
             <div id="tab-armor" class="shop-list tab-content">
                 <div class="shop-item" id="item-armor"><span class="item-name">🛡️ Кольчуга (+50 HP)</span><button onclick="buyItem('armor', 250)">250г</button></div>
                 <div class="shop-item" id="item-plate"><span class="item-name">🛡️ Латы (+150 HP)</span><button onclick="buyItem('plate', 800)">800г</button></div>
             </div>
+
+            <div id="tab-memes" class="shop-list tab-content">
+                <div class="shop-item" id="item-meme1"><span class="item-name">🤣 Кот с лампами</span><button onclick="buyItem('meme1', 300)">300г</button></div>
+                <div class="shop-item" id="item-meme2"><span class="item-name">🔥 Неверный парень</span><button onclick="buyItem('meme2', 500)">500г</button></div>
+            </div>
         </section>
 
         <div id="log-panel">
-            <div id="game-log">Проект загружен со всеми фишками...</div>
+            <div id="game-log">Проект загружен. Боевая арена готова!</div>
         </div>
     </div>
     <script src="script.js"></script>
