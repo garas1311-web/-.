@@ -1,30 +1,53 @@
-body { background: #0d0d12; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 10px; margin: 0; }
-#game-container { width: 100%; max-width: 480px; background: #1a1a24; padding: 20px; border-radius: 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.8); border: 1px solid #333; }
-h1, h3 { text-align: center; color: #ffcc00; margin: 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+body { background: #0a0a0c; color: #e0e0e0; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; padding: 10px; margin: 0; }
+#game-container { width: 100%; max-width: 460px; background: #14141c; padding: 20px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); border: 1px solid #2a2a3a; }
+h1, h3 { text-align: center; color: #ffd700; margin: 10px 0; text-transform: uppercase; letter-spacing: 1px; font-size: 1.1em; }
 
-.stat-group { margin-bottom: 10px; }
-.stat-label { font-size: 0.8em; font-weight: bold; margin-bottom: 4px; display: block; }
-.progress-bar { width: 100%; height: 12px; background: #2d2d3d; border-radius: 10px; overflow: hidden; position: relative; }
+/* Иконки в заголовке */
+.icon-rank::before { content: '🎖️ '; }
+
+.stats-header { display: flex; justify-content: space-between; font-weight: bold; color: #fff; margin-bottom: 15px; border-bottom: 1px solid #2a2a3a; padding-bottom: 10px;}
+.stat-gold { color: #f1c40f; }
+
+.stat-group { margin-bottom: 10px; position: relative;}
+.stat-label { font-size: 0.75em; font-weight: bold; margin-bottom: 3px; display: block; color: #aaa;}
+
+.progress-bar { width: 100%; height: 10px; background: #222; border-radius: 5px; overflow: hidden; position: relative; border: 1px solid #000; }
 #exp-fill { height: 100%; background: linear-gradient(90deg, #00b09b, #96c93d); width: 0%; transition: 0.3s; }
 #hp-fill { height: 100%; background: linear-gradient(90deg, #ff416c, #ff4b2b); width: 100%; transition: 0.3s; }
 #mp-fill { height: 100%; background: linear-gradient(90deg, #2193b0, #6dd5ed); width: 100%; transition: 0.3s; }
 #quest-fill { height: 100%; background: #f1c40f; width: 0%; transition: 0.3s; }
 
-.stats-grid, .map-grid, .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-button { border: none; border-radius: 10px; color: white; font-weight: bold; padding: 12px; cursor: pointer; transition: 0.2s; font-size: 0.9em; }
-button:active { transform: scale(0.95); }
-button:disabled { background: #444 !important; color: #888; }
+/* Иконки статов (Сила/Магия) */
+.icon-stats { color: #fff; font-size: 1.1em; font-weight: bold; background: #1a1a24; padding: 10px; border-radius: 8px; }
 
-.danger-btn { background: #6a11cb; }
-.magic-btn { background: #2575fc; }
-.heal-btn { background: #11998e; }
+.stats-grid, .map-grid, .actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+.map-grid button { background: #1a1a24; border: 1px solid #333; font-size: 0.85em;}
+
+button { border: none; border-radius: 8px; color: white; font-weight: bold; padding: 12px; cursor: pointer; transition: 0.15s; font-size: 0.9em; position: relative; overflow: hidden;}
+button:active { transform: scale(0.97); }
+button:disabled { background: #333 !important; color: #666; cursor: not-allowed;}
+
+.danger-btn { background: #8e2de2; border-bottom: 3px solid #6a11cb; }
+.magic-btn { background: #2980b9; border-bottom: 3px solid #1f618d; }
+.heal-btn { background: #27ae60; }
 .train-btn { background: #444; }
 
-#quest-panel { background: #252535; padding: 15px; border-radius: 12px; border: 1px dashed #ffcc00; margin-bottom: 15px; }
-#quest-info { font-size: 0.85em; margin-bottom: 8px; color: #f1c40f; text-align: center; }
+/* Эффекты для кнопок атаки */
+.icon-sword::before { content: ''; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="white" d="M493.6 18.4l-112 112c-24.6 24.6-24.6 64.5 0 89.1s64.5 24.6 89.1 0l112-112c24.6-24.6 24.6-64.5 0-89.1s-64.5-24.6-89.1 0zM158.4 353.6L18.4 493.6c-24.6 24.6-24.6 64.5 0 89.1s64.5 24.6 89.1 0l112-112c24.6-24.6 24.6-64.5 0-89.1s-64.5-24.6-89.1 0z"/></svg>') no-repeat; opacity: 0.3;}
+.btn-with-icon { padding-left: 30px; }
 
-.shop-item { display: flex; justify-content: space-between; align-items: center; background: #252535; padding: 10px; margin: 5px 0; border-radius: 8px; font-size: 0.85em; }
-.shop-item button { padding: 5px 15px; }
-.owned { border: 1px solid #27ae60; background: #1e3a2a; }
+#quest-panel { background: #1a1a24; padding: 15px; border-radius: 10px; border: 1px dashed #ffd700; margin-bottom: 12px; }
+#quest-info { font-size: 0.8em; margin-bottom: 8px; color: #ffd700; text-align: center; font-weight: bold;}
 
-#log-panel { margin-top: 15px; background: #000; height: 100px; overflow-y: auto; padding: 10px; border-radius: 8px; font-size: 0.8em; color: #aaa; border: 1px solid #333; }
+.shop-item { display: flex; justify-content: space-between; align-items: center; background: #1a1a24; padding: 10px; margin: 4px 0; border-radius: 6px; font-size: 0.85em; }
+.shop-item button { padding: 6px 14px; font-size: 0.8em; background: #f1c40f; color: #000; }
+.owned { border: 1px solid #27ae60; background: #15291c; }
+.owned button { background: #27ae60; color: #fff; }
+
+#log-panel { margin-top: 15px; background: #000; height: 110px; overflow-y: auto; padding: 10px; border-radius: 8px; font-size: 0.8em; color: #bbb; border: 1px solid #2a2a3a; line-height: 1.5;}
+
+/* Цвета для лога */
+.log-win { color: #2ecc71; } /* Победа */
+.log-lose { color: #e74c3c; font-weight: bold; } /* Поражение */
+.log-quest { color: #f1c40f; font-weight: bold; } /* Квест */
+.log-item { color: #3498db; } /* Предмет */
