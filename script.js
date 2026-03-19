@@ -406,3 +406,6 @@ function addLog(text) {
 
 spawnEnemy();
 updateUI();
+<div id="tooltip" class="hidden"></div>
+<div class="unit-wrapper" id="wrapper-knight" onmouseover="showStats('knight')" onmouseout="hideStats()">
+...
