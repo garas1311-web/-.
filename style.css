@@ -1,73 +1,66 @@
-:root { --speed: 2; }
-body { background: #0a0a0c; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; }
-#game-container { width: 100%; max-width: 420px; background: #16161e; padding: 15px; border-radius: 25px; box-shadow: 0 10px 30px #000; overflow: hidden; }
-
-/* Темы локаций */
-.bg-forest { background: linear-gradient(180deg, #1b3d2f 0%, #0a140f 100%); border: 2px solid #2e7d32; }
-.bg-cave { background: linear-gradient(180deg, #2c3e50 0%, #000000 100%); border: 2px solid #555; }
-.bg-castle { background: linear-gradient(180deg, #4b1212 0%, #1a0505 100%); border: 2px solid #c62828; }
-
-#control-panel { display: flex; justify-content: space-between; align-items: center; padding: 5px 10px; background: rgba(0,0,0,0.3); border-radius: 10px; margin-bottom: 10px; font-size: 0.8em; }
-#location-tag { color: #2ecc71; font-weight: bold; }
-
-#dashboard-profile { margin-bottom: 10px; }
-.stats-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
-.progress-bar { height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
-#exp-fill { height: 100%; background: #3498db; width: 0; transition: 0.3s; }
-
-#battle-arena { height: 260px; border-radius: 15px; position: relative; display: flex; justify-content: space-between; padding: 20px; align-items: flex-end; }
-#squad-stage { display: flex; flex-direction: column; gap: 10px; }
-
-/* Юниты и Полоски */
-.unit-wrapper { display: flex; align-items: center; gap: 10px; }
-.unit { width: 45px; height: 50px; position: relative; transition: 0.2s; }
-.mini-hp-bar { width: 40px; height: 4px; background: #000; border-radius: 2px; overflow: hidden; }
-.mini-hp { height: 100%; background: #ff4757; transition: 0.2s; }
-.mini-en-bar { width: 40px; height: 3px; background: #222; margin-top: 2px; border-radius: 2px; }
-.mini-en { height: 100%; background: #f1c40f; width: 0%; transition: 0.2s; }
-
-.skill-btn { 
-    background: #e67e22; border: none; color: #fff; font-size: 0.6em; 
-    padding: 2px 4px; border-radius: 4px; cursor: pointer; animation: glow 1s infinite alternate;
-}
-@keyframes glow { from { box-shadow: 0 0 2px #e67e22; } to { box-shadow: 0 0 8px #ff9f43; } }
-
-#enemy-stage { text-align: center; }
-#enemy-sprite { font-size: 80px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); transition: 0.2s; }
-.enemy-hp-container { width: 100px; height: 12px; background: #000; border-radius: 6px; overflow: hidden; position: relative; margin: 5px 0; border: 1px solid #444; }
-#enemy-hp-fill { height: 100%; background: #ff4757; width: 100%; transition: 0.3s; }
-#enemy-hp-text { position: absolute; width: 100%; text-align: center; font-size: 0.6em; top: 0; line-height: 12px; font-weight: bold; }
-
-/* Анимации */
-.shake { animation: shakeAnim 0.3s; }
-@keyframes shakeAnim {
-    0%, 100% { transform: translate(0,0); }
-    25% { transform: translate(5px, 5px); }
-    50% { transform: translate(-5px, -5px); }
-    75% { transform: translate(5px, -5px); }
+:root {
+    --gold: #f1c40f;
+    --border-bright: #3498db;
+    --bg-dark: #121216;
 }
 
-.floating-text { position: absolute; font-weight: bold; z-index: 100; pointer-events: none; animation: floatUp 0.8s forwards; }
-@keyframes floatUp { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-50px); } }
-.dmg-red { color: #ff4757; font-size: 1.2em; text-shadow: 2px 2px #000; }
-.heal-green { color: #2ecc71; }
+body { background: #000; color: #fff; font-family: 'Verdana', sans-serif; display: flex; justify-content: center; margin: 0; }
+#game-container { width: 400px; background: var(--bg-dark); padding: 15px; border-radius: 12px; border: 1px solid #333; }
 
-.actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-button { border: none; padding: 12px; border-radius: 12px; color: #fff; font-weight: bold; cursor: pointer; transition: 0.2s; }
-button:active { transform: scale(0.95); }
-.danger-btn { background: #c0392b; }
-.heal-btn { background: #27ae60; }
-.magic-btn { background: #8e44ad; }
-.talent-btn { background: #2980b9; }
+/* АРЕНА - Исправляем тесноту */
+#battle-arena {
+    height: 300px;
+    border-radius: 10px;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    padding: 30px 20px;
+    align-items: center; /* Центрируем бойцов и монстра */
+    border: 2px solid var(--border-bright); /* Четкая граница */
+}
 
-#log-panel { height: 80px; background: #000; border-radius: 10px; margin-top: 15px; padding: 10px; font-size: 0.75em; overflow-y: auto; color: #aaa; }
-.hidden { display: none !important; }
+/* Спрайты героев (используем пиксель-арт) */
+.unit {
+    width: 64px; 
+    height: 64px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    image-rendering: pixelated; /* Сохраняем четкость пикселей */
+}
 
-/* Инвентарь */
-.inv-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-.art-slot { background: #222; border: 1px solid #444; height: 50px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5em; }
+/* Эмуляция спрайтов из файла */
+.knight-sprite { background-image: url('https://i.imgur.com/e9w6pCq.png'); background-position: 0 0; }
+.archer-sprite { background-image: url('https://i.imgur.com/your-archer-sprite.png'); filter: hue-rotate(90deg); }
 
-/* Модалки */
-.modal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.modal-content { background: #1c1c28; width: 85%; padding: 20px; border-radius: 20px; border: 1px solid #3498db; position: relative; }
-.close-btn { position: absolute; top: 10px; right: 10px; background: none; font-size: 1.2em; }
+.unit-wrapper { transform: scale(1.4); } /* Делаем героев крупнее */
+
+/* Тексты и Тултипы */
+#tooltip {
+    position: fixed;
+    background: rgba(0,0,0,0.9);
+    border: 1px solid var(--gold);
+    padding: 10px;
+    font-size: 12px;
+    z-index: 9999;
+    pointer-events: none;
+    border-radius: 5px;
+    line-height: 1.4;
+}
+
+/* Кнопки и Слоты */
+.modal-box { background: #1a1a24; border: 2px solid var(--border-bright); width: 90%; padding: 20px; border-radius: 15px; }
+#inventory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.item-slot { 
+    background: #222; border: 1px solid #444; height: 55px; 
+    display: flex; align-items: center; justify-content: center; 
+    font-size: 24px; cursor: pointer; border-radius: 8px;
+}
+.item-slot:hover { border-color: var(--gold); background: #2a2a2a; }
+
+/* Полоски здоровья */
+.hp-bar { width: 50px; height: 6px; background: #000; border: 1px solid #333; margin-top: 5px; }
+.hp-fill { height: 100%; background: #e74c3c; width: 100%; transition: 0.3s; }
+.en-fill { height: 100%; background: var(--gold); width: 0%; }
+
+/* Монстр */
+#enemy-sprite { font-size: 90px; }
