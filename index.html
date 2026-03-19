@@ -1,82 +1,36 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Immortal RPG v11.0</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+<div id="game-container">
     <div id="tooltip" class="hidden"></div>
 
-    <div id="game-container">
-        <div id="header-ui">
-            <div class="top-row">
-                <span id="rank-name">🌑 Новичок</span>
-                <span class="stage-tag">Этап <span id="stage-display">1</span></span>
-            </div>
-            <div class="currency-row">
-                <span>💰 <span id="gold">0</span></span>
-                <span>💎 <span id="tp">0</span></span>
-            </div>
-        </div>
-
-        <section id="battle-arena" class="bg-forest">
-            <div id="location-tag">📍 <span id="loc-text">Лес</span></div>
-            
-            <div id="squad-stage">
-                <div class="unit-wrapper" id="wrapper-knight" onmouseenter="showCharStats('knight')" onmouseleave="hideTooltip()">
-                    <div class="unit knight-sprite" id="unit-knight"></div>
-                    <div class="unit-bars">
-                        <div class="hp-bar"><div class="hp-fill" id="hp-knight"></div></div>
-                        <div class="en-bar"><div class="en-fill" id="en-knight"></div></div>
-                        <button class="skill-btn hidden" id="skill-knight" onclick="useUltimate('knight')">УДАР</button>
-                    </div>
-                </div>
-
-                <div class="unit-wrapper hidden" id="wrapper-archer" onmouseenter="showCharStats('archer')" onmouseleave="hideTooltip()">
-                    <div class="unit archer-sprite" id="unit-archer"></div>
-                    <div class="unit-bars">
-                        <div class="hp-bar"><div class="hp-fill" id="hp-archer"></div></div>
-                        <div class="en-bar"><div class="en-fill" id="en-archer"></div></div>
-                        <button class="skill-btn hidden" id="skill-archer" onclick="useUltimate('archer')">ЗАЛП</button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="enemy-stage">
-                <div id="enemy-sprite">🐺</div>
-                <div class="enemy-info">
-                    <div id="enemy-name">Монстр</div>
-                    <div class="hp-bar enemy-hp"><div class="hp-fill" id="enemy-hp-fill"></div></div>
-                </div>
-            </div>
-            
-            <div id="fx-layer"></div>
-        </section>
-
-        <section class="main-actions">
-            <button class="btn-battle" onclick="manualStartCombat()">⚔️ В БОЙ</button>
-            <button class="btn-rest" onclick="restSquad()">🛌 ОТДЫХ</button>
-            <div class="sub-actions">
-                <button onclick="toggleModal('inv-modal')">🎒 ВЕЩИ</button>
-                <button onclick="toggleModal('talent-modal')">💎 СКИЛЛЫ</button>
-            </div>
-        </section>
-
-        <div id="log-container"></div>
-    </div>
-
-    <div id="inv-modal" class="modal hidden">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>🎒 Инвентарь</h3>
-                <button onclick="toggleModal('inv-modal')">✖</button>
-            </div>
-            <div id="inventory-grid"></div>
+    <div class="header">
+        <h2 style="color:var(--gold)">НОВИЧОК</h2>
+        <p>📍 Деревня</p>
+        <div class="stats-bar">
+            Ур. <span id="lvl-val">1</span> | 💰 <span id="gold-val">180</span>
         </div>
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+    <div id="battle-arena">
+        <div class="knight-sprite" onmouseover="showStats()" onmouseout="hideStats()"></div>
+        
+        <div id="enemy-sprite">🐗</div>
+    </div>
+
+    <div class="grid-btns">
+        <button class="btn-attack" onclick="attack()">⚔️ Рубить</button>
+        <button class="btn-util" onclick="skill()">🔥 Сжечь</button>
+        <button class="btn-rest" onclick="rest()">🛌 Отдых</button>
+        <button class="btn-util" style="background:#d1ccc0; color:#333" onclick="toggleInv()">🎒 Инвентарь</button>
+    </div>
+
+    <div id="log" style="height: 100px; background: #000; margin-top:15px; padding:10px; font-size:12px; overflow-y:auto; border-radius:5px;">
+        > Игра началась...
+    </div>
+</div>
+
+<div id="inv-modal" class="modal hidden">
+    <div class="modal-content">
+        <h3>🎒 Твои Вещи</h3>
+        <div id="inv-grid" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;"></div>
+        <button onclick="toggleInv()" style="margin-top:20px; width:100%; background:#444">Закрыть</button>
+    </div>
+</div>
