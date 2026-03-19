@@ -3,11 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Immortal Squad: Artifacts & Supers</title>
+    <title>Immortal Squad: Epic RPG</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
+        <div id="control-panel">
+            <label><input type="checkbox" id="auto-battle-chk" onchange="toggleAutoBattle()"> 🤖 Автобой</label>
+            <label>
+                ⏱️ Скорость: 
+                <select id="speed-select" onchange="changeSpeed()">
+                    <option value="1">x1</option>
+                    <option value="2">x2</option>
+                    <option value="4">x4</option>
+                </select>
+            </label>
+            <label class="god-mode-label"><input type="checkbox" id="god-mode-chk" onchange="toggleGodMode()"> 👑 Режим Бога</label>
+        </div>
+
         <header>
             <h1><span id="rank-icon">🌑</span> <span id="rank-name">Новичок</span></h1>
             <div id="location-name">📍 Этап: <span id="stage-display">1</span> (<span id="loc-text">Лес</span>)</div>
@@ -24,6 +37,7 @@
                 <div class="stats-header">
                     <span>Ур. <span id="level">1</span></span>
                     <span class="stat-gold">💰 <span id="gold">0</span></span>
+                    <span class="stat-tp" style="color:#3498db;">💎 Таланты: <span id="tp">0</span></span>
                 </div>
             </div>
             <div class="stat-label">Опыт отряда: <span id="exp">0</span>/<span id="next-lvl-exp">40</span></div>
@@ -31,7 +45,7 @@
         </section>
 
         <section id="battle-arena" class="loc-Лес">
-            <div id="squad-stage">
+            <div id="boss-dialogue" class="hidden"></div> <div id="squad-stage">
                 <div class="unit-wrapper" id="wrapper-knight">
                     <div class="unit" id="unit-knight">
                         <svg viewBox="0 0 60 90" class="hero-svg">
@@ -49,10 +63,7 @@
                         </svg>
                         <div class="shield-aura hidden">🛡️</div>
                     </div>
-                    <div class="unit-ui">
-                        <div class="mini-bar-bg"><div class="mini-hp" id="hp-knight"></div></div>
-                        <div class="mini-bar-bg"><div class="mini-en" id="en-knight"></div></div>
-                    </div>
+                    <div class="unit-ui"><div class="mini-bar-bg"><div class="mini-hp" id="hp-knight"></div></div><div class="mini-bar-bg"><div class="mini-en" id="en-knight"></div></div></div>
                 </div>
 
                 <div class="unit-wrapper hidden" id="wrapper-archer">
@@ -70,10 +81,7 @@
                         </svg>
                         <div class="projectile arrow-proj">➡️</div>
                     </div>
-                    <div class="unit-ui">
-                        <div class="mini-bar-bg"><div class="mini-hp" id="hp-archer"></div></div>
-                        <div class="mini-bar-bg"><div class="mini-en" id="en-archer"></div></div>
-                    </div>
+                    <div class="unit-ui"><div class="mini-bar-bg"><div class="mini-hp" id="hp-archer"></div></div><div class="mini-bar-bg"><div class="mini-en" id="en-archer"></div></div></div>
                 </div>
 
                 <div class="unit-wrapper hidden" id="wrapper-mage">
@@ -90,10 +98,7 @@
                         </svg>
                         <div class="projectile spell-proj">✨</div>
                     </div>
-                    <div class="unit-ui">
-                        <div class="mini-bar-bg"><div class="mini-hp" id="hp-mage"></div></div>
-                        <div class="mini-bar-bg"><div class="mini-en" id="en-mage"></div></div>
-                    </div>
+                    <div class="unit-ui"><div class="mini-bar-bg"><div class="mini-hp" id="hp-mage"></div></div><div class="mini-bar-bg"><div class="mini-en" id="en-mage"></div></div></div>
                 </div>
             </div>
 
@@ -107,9 +112,10 @@
         </section>
 
         <section class="actions-grid">
-            <button id="btn-adventure" class="danger-btn" onclick="startCombatLoop()">⚔️ В БОЙ</button>
-            <button id="btn-rest" class="heal-btn" onclick="restSquad()">🛌 Привал (Heal)</button>
-            <button id="btn-inventory" class="magic-btn" onclick="toggleInventory()">🎒 Инвентарь</button>
+            <button id="btn-adventure" class="danger-btn" onclick="manualStartCombat()">⚔️ В БОЙ</button>
+            <button id="btn-rest" class="heal-btn" onclick="restSquad()">🛌 Привал</button>
+            <button id="btn-inventory" class="magic-btn" onclick="toggleModal('inventory-modal')">🎒 Артефакты</button>
+            <button id="btn-talents" class="talent-btn" onclick="toggleModal('talents-modal')">💎 Таланты</button>
         </section>
 
         <section id="shop-panel">
@@ -117,26 +123,52 @@
             <div class="shop-tabs">
                 <button class="tab-btn active" onclick="switchTab('upgrades')">База</button>
                 <button class="tab-btn" onclick="switchTab('mercs')">Наёмники</button>
+                <button class="tab-btn" onclick="switchTab('attributes')">Амулеты</button>
             </div>
             <div id="tab-upgrades" class="shop-list tab-content active">
-                <div class="shop-item"><span>⚔️ Тренировка (+5 Базовый Урон всем)</span><button onclick="buyUpgrade('dmg', 80)">80г</button></div>
-                <div class="shop-item"><span>🛡️ Выносливость (+20 Макс HP всем)</span><button onclick="buyUpgrade('hp', 100)">100г</button></div>
+                <div class="shop-item"><span>⚔️ Оружие (+10 Урон всем)</span><button onclick="buyUpgrade('dmg', 100)">100г</button></div>
+                <div class="shop-item"><span>🛡️ Броня (+50 Макс HP всем)</span><button onclick="buyUpgrade('hp', 150)">150г</button></div>
             </div>
             <div id="tab-mercs" class="shop-list tab-content">
-                <div class="shop-item" id="merc-archer"><span>🏹 Лучник (Быстрый, слабое HP)</span><button class="gold-btn" onclick="buyMerc('archer', 300)">300г</button></div>
-                <div class="shop-item" id="merc-mage"><span>🔮 Маг (Долгий каст, огромный урон)</span><button class="gold-btn" onclick="buyMerc('mage', 800)">800г</button></div>
+                <div class="shop-item" id="merc-archer"><span>🏹 Лучник</span><button class="gold-btn" onclick="buyMerc('archer', 500)">500г</button></div>
+                <div class="shop-item" id="merc-mage"><span>🔮 Маг</span><button class="gold-btn" onclick="buyMerc('mage', 1500)">1500г</button></div>
+            </div>
+            <div id="tab-attributes" class="shop-list tab-content">
+                <div class="shop-item"><span>🩸 Кольцо Вампира (+2% Вампиризм)</span><button onclick="buyAttribute('vamp', 300)">300г</button></div>
+                <div class="shop-item"><span>🎯 Окуляры Убийцы (+2% Крит шанс)</span><button onclick="buyAttribute('crit', 300)">300г</button></div>
+                <div class="shop-item"><span>💨 Плащ Тени (+2% Уклонение)</span><button onclick="buyAttribute('dodge', 300)">300г</button></div>
             </div>
         </section>
 
-        <div id="log-panel"><div id="game-log"><div>> Система Артефактов и Суперспособностей активирована.</div></div></div>
+        <div id="log-panel"><div id="game-log"><div>> Система готова. Включите Автобой или нажмите В БОЙ.</div></div></div>
     </div>
 
     <div id="inventory-modal" class="modal hidden">
         <div class="modal-content">
-            <button class="close-btn" onclick="toggleInventory()">✖</button>
+            <button class="close-btn" onclick="toggleModal('inventory-modal')">✖</button>
             <h3>🎒 Артефакты Боссов</h3>
-            <div id="inventory-list">
-                <p style="color:#777; font-size:0.9em;">Побеждайте боссов (каждые 10 уровней), чтобы добыть артефакты.</p>
+            <div id="inventory-list"></div>
+        </div>
+    </div>
+
+    <div id="talents-modal" class="modal hidden">
+        <div class="modal-content">
+            <button class="close-btn" onclick="toggleModal('talents-modal')">✖</button>
+            <h3>💎 Дерево Талантов</h3>
+            <p style="text-align:center; font-size:0.9em; color:#bbb;">Свободных очков: <strong id="tp-display">0</strong></p>
+            <div class="shop-list" id="talents-list">
+                <div class="shop-item">
+                    <span>💥 Мастер Крита (+5% Сила Крита) <br><small>Текущий бонус: +<span id="stat-critDmg">0</span>%</small></span>
+                    <button class="talent-btn" onclick="upgradeTalent('critDmg')">1 Очко</button>
+                </div>
+                <div class="shop-item">
+                    <span>🌪️ Мастер Комбо (+3% Шанс Комбо) <br><small>Текущий бонус: +<span id="stat-combo">0</span>%</small></span>
+                    <button class="talent-btn" onclick="upgradeTalent('combo')">1 Очко</button>
+                </div>
+                <div class="shop-item">
+                    <span>❤️ Живучесть (+5% Глобальное HP) <br><small>Текущий бонус: +<span id="stat-hpBonus">0</span>%</small></span>
+                    <button class="talent-btn" onclick="upgradeTalent('hpBonus')">1 Очко</button>
+                </div>
             </div>
         </div>
     </div>
