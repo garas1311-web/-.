@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Immortal Squad: Full RPG Fixed</title>
+    <title>Immortal Squad: Gold Edition</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -16,128 +16,73 @@
         <section id="dashboard-profile">
             <div class="profile-main">
                 <div id="progression-avatar">
-                    <svg viewBox="0 0 50 50" id="avatar-svg">
-                        <circle cx="25" cy="25" r="20" fill="#2c3e50" id="avatar-bg"/>
-                        <path d="M25 15 L30 25 L20 25 Z" fill="#95a5a6" id="avatar-core"/>
+                    <svg viewBox="0 0 50 50">
+                        <circle cx="25" cy="25" r="20" fill="#2c3e50" stroke="#ffd700" stroke-width="2"/>
+                        <path d="M25 12 L35 35 L15 35 Z" fill="#f1c40f"/>
                     </svg>
                 </div>
                 <div class="stats-header">
                     <span>Ур. <span id="level">1</span></span>
                     <span class="stat-gold">💰 <span id="gold">0</span></span>
-                    <span class="talent-points-label">🌟 <span id="talent-points">0</span></span>
                 </div>
             </div>
-            <div class="stat-group exp-group">
-                <div class="stat-label">Опыт: <span id="exp">0</span>/<span id="next-lvl-exp">100</span></div>
-                <div class="progress-bar exp"><div id="exp-fill"></div></div>
-            </div>
+            <div class="progress-bar exp"><div id="exp-fill"></div></div>
         </section>
 
         <section id="battle-arena" class="loc-Лес">
             <div id="squad-stage">
-                <div class="unit knight-unit" id="unit-knight">
-                    <div class="sprite-layer knight-idle"></div>
+                <div class="unit" id="unit-knight">
+                    <svg viewBox="0 0 60 90" class="knight-svg">
+                        <path d="M20 35 Q 5 50 15 75 L35 75 Q 45 50 30 35" fill="#8e0000"/>
+                        <rect x="18" y="35" width="24" height="35" fill="#34495e" rx="3" stroke="#f1c40f" stroke-width="1"/>
+                        <path d="M18 18 L42 18 L42 38 L18 38 Z" fill="#5d6d7e" stroke="#f1c40f" stroke-width="1.5"/>
+                        <rect x="22" y="24" width="16" height="3" fill="#1a1a1a"/> <circle cx="18" cy="38" r="6" fill="#f1c40f"/>
+                        <circle cx="42" cy="38" r="6" fill="#f1c40f"/>
+                        <g transform="rotate(-15 45 45)">
+                            <rect x="42" y="30" width="4" height="35" fill="#ecf0f1" stroke="#2c3e50" stroke-width="0.5"/>
+                            <rect x="38" y="55" width="12" height="3" fill="#f1c40f"/>
+                        </g>
+                    </svg>
                 </div>
                 
                 <div class="unit" id="unit-archer">
-                    <svg viewBox="0 0 50 80" class="pixel-unit">
+                    <svg viewBox="0 0 50 80">
                         <rect x="15" y="30" width="20" height="30" fill="#27ae60" rx="2"/>
                         <path d="M17 15 L33 15 L25 5 Z" fill="#2ecc71"/>
-                        <g transform="translate(35, 30)"><path d="M0 0 Q 15 15 0 30" stroke="#f1c40f" fill="none" stroke-width="2"/></g>
+                        <path d="M35 30 Q 50 45 35 60" stroke="#f1c40f" fill="none" stroke-width="2"/>
                     </svg>
-                    <div class="arrow-projectile">➡️</div>
                 </div>
 
                 <div class="unit" id="unit-mage">
-                    <svg viewBox="0 0 50 80" class="pixel-unit">
+                    <svg viewBox="0 0 50 80">
                         <rect x="15" y="30" width="20" height="30" fill="#8e44ad" rx="2"/>
                         <circle cx="25" cy="20" r="10" fill="#9b59b6"/>
-                        <g transform="translate(38, 20)">
-                            <rect x="0" y="0" width="3" height="45" fill="#34495e"/>
-                            <circle class="staff-orb" cx="1.5" cy="0" r="5" fill="#00d2ff"/>
-                        </g>
+                        <rect x="38" y="20" width="3" height="45" fill="#34495e"/>
+                        <circle cx="39.5" cy="20" r="5" fill="#00d2ff" class="orb-glow"/>
                     </svg>
-                    <div class="spell-projectile">✨</div>
                 </div>
-                <div id="hero-damage" class="floating-text"></div>
             </div>
 
             <div id="enemy-stage">
                 <div id="enemy-sprite">🌲</div>
-                <div id="enemy-damage" class="floating-text"></div>
             </div>
         </section>
-
-        <section id="stats-panel">
-            <div class="stats-grid icon-stats">
-                <div class="hp-text">❤️ <span id="hp">100</span>/<span id="max-hp">100</span></div>
-                <div class="mp-text">✨ <span id="mp">50</span>/<span id="max-mp">50</span></div>
-                <div>💪 <span id="stat-strength">10</span></div>
-                <div>🔮 <span id="stat-magic">10</span></div>
-                <div>🛡️ <span id="stat-endurance">10</span></div>
-            </div>
-        </section>
-
-        <nav class="map-grid">
-            <button onclick="changeLoc('Лес')">🌲 Лес</button>
-            <button onclick="changeLoc('Пещеры')">🦇 Пещеры</button>
-            <button onclick="changeLoc('Замок')">🏰 Замок</button>
-        </nav>
 
         <section class="actions-grid">
-            <button id="btn-combo" onclick="squadAttack('physical')" class="danger-btn">⚔️ Комбо-атака</button>
-            <button id="btn-magic" onclick="squadAttack('magic')" class="magic-btn">🔥 Маг. залп</button>
-            <button id="btn-rest" onclick="rest()" class="heal-btn">🛌 Привал</button>
-            <button id="btn-talents" onclick="showTalentTree()" class="event-btn">🌟 Навыки</button>
-            <button id="btn-inventory" onclick="showFullInventory()" class="event-btn">🎒 Инвентарь</button>
+            <button class="danger-btn" onclick="squadAttack()">⚔️ Рубить</button>
+            <button class="magic-btn" onclick="squadAttack()">🔥 Сжечь</button>
+            <button class="heal-btn" onclick="rest()">🛌 Отдых</button>
+            <button class="event-btn">🎲 Приключение</button>
         </section>
 
         <section id="shop-panel">
             <h3>🛒 Кузница</h3>
-            <div class="shop-tabs">
-                <button onclick="switchTab('weapons')" class="tab-btn active">Оружие</button>
-                <button onclick="switchTab('armor')" class="tab-btn">Броня</button>
-            </div>
-            <div id="tab-weapons" class="shop-list tab-content active">
-                <div class="shop-item" id="item-sword"><span>⚔️ Клинки (+20 СИЛ)</span><button onclick="buyItem('sword', 150)">150г</button></div>
-                <div class="shop-item" id="item-staff"><span>🔮 Посохи (+25 МАГ)</span><button onclick="buyItem('staff', 200)">200г</button></div>
-            </div>
-            <div id="tab-armor" class="shop-list tab-content">
-                <div class="shop-item" id="item-armor"><span>🛡️ Кольчуги (+80 HP)</span><button onclick="buyItem('armor', 300)">300г</button></div>
-                <div class="shop-item" id="item-plate"><span>🌕 Латы (+200 HP)</span><button onclick="buyItem('plate', 1000)">1000г</button></div>
-            </div>
+            <div class="shop-item"><span>⚔️ Клинки (+20 СИЛ)</span><button>150г</button></div>
+            <div class="shop-item"><span>🔮 Сферы (+25 МАГ)</span><button>200г</button></div>
         </section>
 
-        <div id="log-panel"><div id="game-log">Проект Ultimate Fixed запущен...</div></div>
+        <div id="log-panel"><div id="game-log">Отряд готов к бою...</div></div>
     </div>
-
-    <div id="event-overlay" class="overlay hidden">
-        <div class="overlay-card event-card"><h4 id="event-title">Событие</h4><p id="event-text">...</p><div class="choice-group"><button id="choice-1">Да</button><button id="choice-2">Нет</button></div></div>
-    </div>
-
-    <div id="talent-overlay" class="overlay hidden">
-        <div class="overlay-card talent-card">
-            <button class="close-btn" onclick="closeOverlays()">✖️</button>
-            <h4>🌟 Навыки (Очки: <span id="talent-points-display">0</span>)</h4>
-            <div class="talent-tree">
-                <div class="talent-branch"><h5>💪 Сила</h5><button class="talent-node locked" id="talent-force-1" onclick="buyTalent('force', 1)">Ур 1</button></div>
-                <div class="talent-branch"><h5>🔮 Маг</h5><button class="talent-node locked" id="talent-arcane-1" onclick="buyTalent('arcane', 1)">Ур 1</button></div>
-                <div class="talent-branch"><h5>🛡️ ХП</h5><button class="talent-node locked" id="talent-endurance-1" onclick="buyTalent('endurance', 1)">Ур 1</button></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="inventory-overlay" class="overlay hidden">
-        <div class="overlay-card inventory-card">
-            <button class="close-btn" onclick="closeOverlays()">✖️</button>
-            <h4>🎒 Инвентарь Артефактов</h4>
-            <div class="artifact-grid">
-                <div class="art-slot"></div><div class="art-slot"></div><div class="art-slot"></div><div class="art-slot"></div><div class="art-slot"></div>
-            </div>
-            <button onclick="combineArtifacts()" class="danger-btn combine-btn" style="margin-top:10px">Синтез (выберите 2)</button>
-        </div>
-    </div>
-
     <script src="script.js"></script>
 </body>
 </html>
