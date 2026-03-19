@@ -1,12 +1,13 @@
 let player = { 
     level: 1, exp: 0, nextLvlExp: 40, gold: 0, stage: 1, 
-    tp: 0, stats: { hpBonus: 1.0, energyRegen: 1.0, critChance: 0.05 }
+    talentPoints: 0,
+    stats: { critChance: 0.05, critDmgMult: 1.5, vampirism: 0, dodge: 0.05, comboChance: 0.15, hpBonusMult: 1 }
 };
 
 let squad = {
-    knight: { name: "Рыцарь", hp: 100, maxHp: 100, baseDmg: 20, energy: 0, hired: true, art: "⚔️" },
-    archer: { name: "Лучник", hp: 60, maxHp: 60, baseDmg: 15, energy: 0, hired: false, art: "🏹" },
-    mage: { name: "Маг", hp: 50, maxHp: 50, baseDmg: 35, energy: 0, hired: false, art: "🔮" }
+    knight: { name: "Рыцарь", hp: 100, maxHp: 100, baseDmg: 20, energy: 0, hired: true, artifact: null },
+    archer: { name: "Лучник", hp: 60, maxHp: 60, baseDmg: 15, energy: 0, hired: false, artifact: null },
+    mage: { name: "Маг", hp: 50, maxHp: 50, baseDmg: 30, energy: 0, hired: false, artifact: null }
 };
 
 let inventory = [];
@@ -14,113 +15,132 @@ let enemy = { hp: 40, maxHp: 40, baseDmg: 5, name: "Волк", sprite: "🐺", i
 let isCombatActive = false;
 let autoBattle = false;
 let gameSpeed = 2;
+let godMode = false;
 
 const delay = ms => new Promise(res => setTimeout(res, ms / gameSpeed));
 
-// УЛЬТИМЕЙТЫ
-async function useUltimate(id) {
-    let char = squad[id];
-    if (char.energy < 100) return;
-    
-    char.energy = 0;
-    document.getElementById('skill-' + id).classList.add('hidden');
-    addLog(`🔥 ${char.name} использует СУПЕРУДАР!`);
+// Управление скоростью
+function changeSpeed() {
+    gameSpeed = parseFloat(document.getElementById('speed-select').value);
+    document.documentElement.style.setProperty('--speed', gameSpeed);
+}
 
-    if (id === 'knight') {
-        let dmg = char.baseDmg * 2.5;
-        enemy.hp -= dmg;
-        char.hp = Math.min(char.maxHp * player.stats.hpBonus, char.hp + 30);
-        createText('enemy-sprite', `КРИТ ${Math.floor(dmg)}`, 'dmg-red');
-    } else if (id === 'archer') {
-        enemy.hp -= char.baseDmg * 4;
-        createText('enemy-sprite', `ЗАЛП ${char.baseDmg * 4}`, 'dmg-red');
-    } else if (id === 'mage') {
-        enemy.hp -= char.baseDmg * 5;
-        document.getElementById('battle-arena').classList.add('shake');
-        setTimeout(() => document.getElementById('battle-arena').classList.remove('shake'), 300);
-    }
+// Режим бога
+function toggleGodMode() {
+    godMode = document.getElementById('god-mode-chk').checked;
+    if (godMode) { player.gold = 999999; player.talentPoints = 999; addLog("👑 God Mode активирован"); }
     updateUI();
 }
+
+function toggleAutoBattle() {
+    autoBattle = document.getElementById('auto-battle-chk').checked;
+    if (autoBattle && !isCombatActive) manualStartCombat();
+}
+
+// ПОКАЗ СТАТОВ
+function showStats(id) {
+    let char = squad[id];
+    if (!char.hired) return;
+    let tooltip = document.getElementById('tooltip');
+    let actualMaxHp = Math.floor(char.maxHp * player.stats.hpBonusMult);
+    let totalDmg = char.baseDmg + (char.artifact === 'wind_bow' ? 20 : 0);
+    
+    tooltip.innerHTML = `
+        <strong>${char.name}</strong><br>
+        ❤️ HP: ${Math.floor(char.hp)} / ${actualMaxHp}<br>
+        ⚔️ Урон: ${totalDmg}<br>
+        ⚡ Энергия: ${char.energy}/100
+    `;
+    tooltip.classList.remove('hidden');
+}
+
+function hideStats() { document.getElementById('tooltip').classList.add('hidden'); }
+
+document.addEventListener('mousemove', (e) => {
+    let tooltip = document.getElementById('tooltip');
+    if (!tooltip.classList.contains('hidden')) {
+        tooltip.style.left = (e.clientX + 15) + 'px';
+        tooltip.style.top = (e.clientY + 15) + 'px';
+    }
+});
 
 function updateUI() {
     document.getElementById('level').innerText = player.level;
     document.getElementById('gold').innerText = player.gold;
-    document.getElementById('tp').innerText = player.tp;
-    document.getElementById('stage-display').innerText = player.stage;
+    document.getElementById('tp').innerText = player.talentPoints;
+    document.getElementById('tp-display').innerText = player.talentPoints;
     document.getElementById('exp-fill').style.width = (player.exp / player.nextLvlExp * 100) + "%";
-
+    document.getElementById('stage-display').innerText = player.stage;
+    
     for (let id in squad) {
         let char = squad[id];
         if (char.hired) {
             document.getElementById('wrapper-' + id).classList.remove('hidden');
-            let mHp = char.maxHp * player.stats.hpBonus;
+            let mHp = char.maxHp * player.stats.hpBonusMult;
             document.getElementById('hp-' + id).style.width = Math.max(0, (char.hp / mHp * 100)) + "%";
             document.getElementById('en-' + id).style.width = char.energy + "%";
-            if (char.energy >= 100) document.getElementById('skill-' + id).classList.remove('hidden');
+            if (char.hp <= 0) document.getElementById('unit-' + id).classList.add('dead');
+            else document.getElementById('unit-' + id).classList.remove('dead');
         }
     }
-
     document.getElementById('enemy-hp-fill').style.width = (enemy.hp / enemy.maxHp * 100) + "%";
-    document.getElementById('enemy-hp-text').innerText = `${Math.floor(enemy.hp)} / ${Math.floor(enemy.maxHp)}`;
-    updateLocation();
 }
 
-function updateLocation() {
-    let arena = document.getElementById('battle-arena');
-    let txt = document.getElementById('loc-text');
-    arena.classList.remove('bg-forest', 'bg-cave', 'bg-castle');
-    
-    if (player.stage <= 10) { arena.classList.add('bg-forest'); txt.innerText = "Лес"; }
-    else if (player.stage <= 20) { arena.classList.add('bg-cave'); txt.innerText = "Пещеры"; }
-    else { arena.classList.add('bg-castle'); txt.innerText = "Замок"; }
-}
-
+// НОВЫЙ БАЛАНС (Мягкий скейлинг 1.08)
 function spawnEnemy() {
     let scale = Math.pow(1.08, player.stage - 1);
     let isBoss = player.stage % 10 === 0;
-    
+
     if (isBoss) {
-        enemy = { hp: 200 * scale, maxHp: 200 * scale, baseDmg: 12 * scale, name: "БОСС", sprite: "👹", isBoss: true };
-        addLog("⚠️ Появился БОСС локации!");
+        enemy = { hp: Math.floor(180 * scale), maxHp: Math.floor(180 * scale), baseDmg: Math.floor(14 * scale), name: "БОСС", sprite: "👹", isBoss: true };
+        document.getElementById('boss-dialogue').innerText = "Вам не пройти дальше!";
+        document.getElementById('boss-dialogue').classList.remove('hidden');
     } else {
-        let sprites = ["🐺", "🦇", "🕷️", "🐍", "🐗"];
-        enemy = { hp: 40 * scale, maxHp: 40 * scale, baseDmg: 6 * scale, name: "Монстр", sprite: sprites[Math.floor(Math.random()*sprites.length)], isBoss: false };
+        enemy = { hp: Math.floor(35 * scale), maxHp: Math.floor(35 * scale), baseDmg: Math.floor(5 * scale), name: "Монстр", sprite: "🐺", isBoss: false };
+        document.getElementById('boss-dialogue').classList.add('hidden');
     }
     document.getElementById('enemy-sprite').innerText = enemy.sprite;
-    document.getElementById('enemy-name').innerText = enemy.name;
     updateUI();
 }
 
+async function manualStartCombat() { if (!isCombatActive && isAnyAlive()) startCombatLoop(); }
+
+// ЦИКЛИЧНЫЙ АВТОБОЙ
 async function startCombatLoop() {
     if (isCombatActive) return;
     isCombatActive = true;
-
+    
     while (enemy.hp > 0 && isAnyAlive()) {
         for (let id in squad) {
             let char = squad[id];
             if (char.hired && char.hp > 0 && enemy.hp > 0) {
-                // Атака игрока
-                let dmg = char.baseDmg * (0.9 + Math.random() * 0.2);
-                enemy.hp -= dmg;
-                char.energy = Math.min(100, char.energy + (10 * player.stats.energyRegen));
+                let unitEl = document.getElementById('unit-' + id);
+                unitEl.classList.add('anim-melee');
                 
+                let dmg = Math.floor(char.baseDmg * (0.9 + Math.random() * 0.2));
+                if (Math.random() < player.stats.critChance) dmg *= player.stats.critDmgMult;
+                
+                enemy.hp -= dmg;
                 createText('enemy-sprite', `-${Math.floor(dmg)}`, 'dmg-red');
+                document.getElementById('enemy-sprite').classList.add('anim-hit');
+                
                 await delay(400);
+                unitEl.classList.remove('anim-melee');
+                document.getElementById('enemy-sprite').classList.remove('anim-hit');
                 updateUI();
             }
         }
 
         if (enemy.hp > 0 && isAnyAlive()) {
-            // Атака врага
             let targets = Object.keys(squad).filter(k => squad[k].hired && squad[k].hp > 0);
             let targetId = targets[Math.floor(Math.random() * targets.length)];
-            let eDmg = enemy.baseDmg * (0.8 + Math.random() * 0.4);
+            let eDmg = Math.floor(enemy.baseDmg * (0.8 + Math.random() * 0.4));
             
-            squad[targetId].hp -= eDmg;
-            createText('unit-' + targetId, `-${Math.floor(eDmg)}`, 'dmg-red');
-            if (enemy.isBoss) {
-                 document.getElementById('battle-arena').classList.add('shake');
-                 setTimeout(() => document.getElementById('battle-arena').classList.remove('shake'), 200);
+            if (Math.random() > player.stats.dodge) {
+                squad[targetId].hp -= eDmg;
+                createText('unit-' + targetId, `-${eDmg}`, 'dmg-red');
+            } else {
+                createText('unit-' + targetId, `МИМО!`, 'heal-green');
             }
             updateUI();
             await delay(500);
@@ -128,61 +148,38 @@ async function startCombatLoop() {
     }
 
     isCombatActive = false;
+
     if (!isAnyAlive()) {
-        addLog("💀 Отряд пал. Нужен отдых.");
+        addLog("💀 Поражение...");
         if (autoBattle) { await delay(2000); restSquad(); startCombatLoop(); }
     } else {
-        winBattle();
+        addLog(`✅ Этап ${player.stage} пройден!`);
+        player.gold += enemy.isBoss ? 150 : 20;
+        gainExp(enemy.isBoss ? 200 : 35);
+        player.stage++;
+        spawnEnemy();
+        if (autoBattle) { await delay(1000); startCombatLoop(); }
     }
 }
 
-function winBattle() {
-    let goldGain = enemy.isBoss ? 200 : 25 + (player.stage * 2);
-    player.gold += goldGain;
-    gainExp(enemy.isBoss ? 250 : 40);
-    
-    if (Math.random() < 0.15 || enemy.isBoss) dropLoot();
-    
-    player.stage++;
-    addLog(`🏆 Победа! Этап ${player.stage}. +${goldGain}г`);
-    spawnEnemy();
-    if (autoBattle) setTimeout(startCombatLoop, 1000 / gameSpeed);
-}
-
-function dropLoot() {
-    let arts = ["💍", "🧿", "🧤", "📿", "👑"];
-    let art = arts[Math.floor(Math.random()*arts.length)];
-    inventory.push(art);
-    addLog(`🎁 Выпал артефакт: ${art}!`);
-    renderInventory();
-}
-
-function renderInventory() {
-    let list = document.getElementById('inventory-list');
-    list.innerHTML = '';
-    inventory.forEach(item => {
-        let div = document.createElement('div');
-        div.className = 'art-slot';
-        div.innerText = item;
-        list.appendChild(div);
-    });
-}
-
-function gainExp(amt) {
-    player.exp += amt;
+function gainExp(amount) {
+    player.exp += amount;
     if (player.exp >= player.nextLvlExp) {
         player.level++;
         player.exp -= player.nextLvlExp;
-        player.nextLvlExp = Math.floor(player.nextLvlExp * 1.5);
-        player.tp++;
-        for (let id in squad) { squad[id].maxHp += 25; squad[id].baseDmg += 5; }
-        addLog(`🌟 УРОВЕНЬ ПОВЫШЕН: ${player.level}!`);
+        player.nextLvlExp = Math.floor(player.nextLvlExp * 1.4);
+        player.talentPoints++;
+        for (let id in squad) {
+            squad[id].maxHp += 20;
+            squad[id].baseDmg += 5;
+            if (squad[id].hired) squad[id].hp = squad[id].maxHp * player.stats.hpBonusMult;
+        }
+        addLog(`🌟 УРОВЕНЬ ${player.level}! Сила и ОЗ выросли.`);
     }
 }
 
 function restSquad() {
-    for (let id in squad) if (squad[id].hired) squad[id].hp = squad[id].maxHp * player.stats.hpBonus;
-    addLog("🛌 Отряд восстановил силы.");
+    for (let id in squad) if (squad[id].hired) squad[id].hp = squad[id].maxHp * player.stats.hpBonusMult;
     updateUI();
 }
 
@@ -198,30 +195,33 @@ function createText(targetId, text, className) {
     el.style.left = (rect.left - arena.left + 20) + 'px';
     el.style.top = (rect.top - arena.top) + 'px';
     document.getElementById('combat-text-layer').appendChild(el);
-    setTimeout(() => el.remove(), 800 / gameSpeed);
+    setTimeout(() => el.remove(), 700 / gameSpeed);
 }
 
-function addLog(msg) {
+function addLog(t) {
     let log = document.getElementById('game-log');
-    let div = document.createElement('div');
-    div.innerText = "> " + msg;
-    log.prepend(div);
+    let d = document.createElement('div');
+    d.innerText = "> " + t;
+    log.prepend(d);
 }
 
-// СИСТЕМНЫЕ ФУНКЦИИ
+// Заглушки для функций талантов и магазина (остаются из прошлого кода)
 function switchTab(id) {
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-'+id).classList.add('active');
     event.target.classList.add('active');
 }
+function buyMerc(id, cost) {
+    if (player.gold >= cost && !squad[id].hired) {
+        player.gold -= cost; squad[id].hired = true; squad[id].hp = squad[id].maxHp;
+        updateUI();
+    }
+}
 function toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
-function changeSpeed() { gameSpeed = parseFloat(document.getElementById('speed-select').value); }
-function toggleAutoBattle() { autoBattle = document.getElementById('auto-battle-chk').checked; if (autoBattle) manualStartCombat(); }
-function manualStartCombat() { if (!isCombatActive && isAnyAlive()) startCombatLoop(); }
-function buyMerc(id, cost) { if (player.gold >= cost && !squad[id].hired) { player.gold -= cost; squad[id].hired = true; squad[id].hp = squad[id].maxHp; updateUI(); }}
-function buyUpgrade(type, cost) { if (player.gold >= cost) { player.gold -= cost; for (let id in squad) { if (type === 'hp') squad[id].maxHp += 50; else squad[id].baseDmg += 10; } updateUI(); }}
-function upgradeTalent(type) { if (player.tp > 0) { player.tp--; if (type === 'hpBonus') player.stats.hpBonus += 0.1; else player.stats.energyRegen += 0.1; updateUI(); }}
+function buyUpgrade(t, c) { if(player.gold >= c) { player.gold -= c; for(let i in squad) { if(t==='dmg') squad[i].baseDmg+=10; else squad[i].maxHp+=50; } updateUI(); }}
+function buyAttribute(t, c) { if(player.gold >= c) { player.gold -= c; if(t==='vamp') player.stats.vampirism+=0.02; if(t==='crit') player.stats.critChance+=0.02; updateUI(); }}
+function upgradeTalent(t) { if(player.talentPoints > 0) { player.talentPoints--; if(t==='hpBonus') player.stats.hpBonusMult+=0.05; updateUI(); }}
 
 spawnEnemy();
 updateUI();
